@@ -7,6 +7,7 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import path from 'path';
 import errorHandler from './middleware/errorHandler';
+import credentials from './middleware/credentials';
 
 dotenv.config();
 
@@ -15,6 +16,10 @@ const PORT: number = parseInt(process.env.PORT || '3500', 10);
 
 // Connect to mongo DB
 //connectDB();
+
+// Handle options credentials check - before CORS!
+// and fetch cokies credentials requirement
+app.use(credentials);
 
 // Cross Origin Resource Sharing
 app.use(cors(corsOptions));
@@ -30,10 +35,15 @@ app.use(express.json());
 // middleware for cookies
 app.use(cookieParser());
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Welcome to Express & Typescript Server');
-});
+// serve static files
+app.use('/', express.static(path.join(__dirname, '/public')));
 
+// routes
+app.use('/', require('./routes/root'))
+
+
+
+// default route
 app.all('/*', (req: Request, res: Response) => {
   res.status(404);
   if (req.accepts('html')) {
