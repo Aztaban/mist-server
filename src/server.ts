@@ -8,6 +8,7 @@ import mongoose from 'mongoose';
 import path from 'path';
 import errorHandler from './middleware/errorHandler';
 import credentials from './middleware/credentials';
+import verifyJWT from './middleware/verifyJWT';
 
 dotenv.config();
 
@@ -39,10 +40,11 @@ app.use(cookieParser());
 app.use('/', express.static(path.join(__dirname, '../public')));
 
 // routes
-app.use('/', require('./routes/root'))
-app.use('/auth', require('./routes/auth'))
+app.use('/', require('./routes/root'));
+app.use('/auth', require('./routes/auth'));
 
-
+// verified routes
+app.use(verifyJWT);
 
 // default route
 app.all('/*', (req: Request, res: Response) => {
@@ -50,9 +52,9 @@ app.all('/*', (req: Request, res: Response) => {
   if (req.accepts('html')) {
     res.sendFile(path.join(__dirname, 'views', '404.html'));
   } else if (req.accepts('json')) {
-    res.json({ error: '404 Not Found'})
+    res.json({ error: '404 Not Found' });
   } else {
-    res.type('txt').send('404 Not Found')
+    res.type('txt').send('404 Not Found');
   }
 });
 
@@ -63,4 +65,4 @@ mongoose.connection.once('open', () => {
   app.listen(PORT, () =>
     console.log(`Server is running at http://localhost:${PORT}`)
   );
-}); 
+});
