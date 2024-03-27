@@ -4,4 +4,6 @@ const ROLES_LIST: Record<string, number> = {
   User: 1012
 }
 
-export default ROLES_LIST;
+export type Role = keyof typeof ROLES_LIST;
+
+export { ROLES_LIST };

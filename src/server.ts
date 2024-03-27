@@ -15,7 +15,7 @@ const app: Express = express();
 const PORT: number = parseInt(process.env.PORT || '3500', 10);
 
 // Connect to mongo DB
-//connectDB();
+connectDB();
 
 // Handle options credentials check - before CORS!
 // and fetch cokies credentials requirement
@@ -36,7 +36,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // serve static files
-app.use('/', express.static(path.join(__dirname, '/public')));
+app.use('/', express.static(path.join(__dirname, '../public')));
 
 // routes
 app.use('/', require('./routes/root'))
@@ -58,13 +58,9 @@ app.all('/*', (req: Request, res: Response) => {
 
 app.use(errorHandler);
 
-/* mongoose.connection.once('open', () => {
+mongoose.connection.once('open', () => {
   console.log('Connected to MongoDB');
   app.listen(PORT, () =>
     console.log(`Server is running at http://localhost:${PORT}`)
   );
-}); */
-
-app.listen(PORT, () =>
-  console.log(`Server is running at http://localhost:${PORT}`)
-);
+}); 
