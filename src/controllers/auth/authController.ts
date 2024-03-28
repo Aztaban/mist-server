@@ -36,13 +36,13 @@ const handleLogin = async (req: Request, res: Response): Promise<void> => {
         const accessToken: string = jwt.sign(
           accessTokenPayload,
           process.env.ACCESS_TOKEN_SECRET as Secret,
-          { expiresIn: '30s' }
+          { expiresIn: '15m' }
         );
 
         const refreshToken: string = jwt.sign(
           { username: foundUser.username },
           process.env.REFRESH_TOKEN_SECRET as Secret,
-          { expiresIn: '60s' }
+          { expiresIn: '4h' }
         );
 
         // Saving refreshToken with current user
