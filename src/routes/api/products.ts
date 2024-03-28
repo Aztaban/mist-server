@@ -9,7 +9,7 @@ router
   .route('/')
   .get(productsController.getAllProducts)
   .post(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor), productsController.createNewProduct)
-  .delete( productsController.deleteProduct);
+  .delete(verifyRoles(ROLES_LIST.Admin), productsController.deleteProduct);
 
 router
   .route('/:id')
