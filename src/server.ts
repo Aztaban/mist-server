@@ -9,7 +9,7 @@ import path from 'path';
 import errorHandler from './middleware/errorHandler';
 import credentials from './middleware/credentials';
 import verifyJWT from './middleware/verifyJWT';
-import { logEvents } from './middleware/logEvents';
+import { logEvents, logger } from './middleware/logEvents';
 
 dotenv.config();
 
@@ -18,6 +18,8 @@ const PORT: number = parseInt(process.env.PORT || '3500', 10);
 
 // Connect to mongo DB
 connectDB();
+
+app.use(logger)
 
 // Handle options credentials check - before CORS!
 // and fetch cokies credentials requirement

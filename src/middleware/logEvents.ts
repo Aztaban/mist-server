@@ -22,7 +22,7 @@ const logEvents = async (message: string, logName: string) => {
 };
 
 const logger = (req: Request, res: Response, next: NextFunction) => {
-  logEvents(`${req.method}\t${req.headers.origin}\t${req.url}`, 'reqLog.txt');
+  logEvents(`${req.method}\t${req.headers.origin}\t${req.url}`, 'reqLog.log');
   console.log(`${req.method} ${req.path}`);
   next();
 };
