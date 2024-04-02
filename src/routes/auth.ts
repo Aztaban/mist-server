@@ -3,12 +3,13 @@ import { handleNewUser } from '../controllers/auth/registerController';
 import { handleRefreshToken } from '../controllers/auth/refreshTokenController';
 import { handleLogout } from '../controllers/auth/logoutController';
 import { handleLogin } from '../controllers/auth/authController';
+import loginLimiter from '../middleware/loginLimiter';
 
 const router: Router = express.Router();
 
-router.post('/', handleLogin);
-router.get('/refresh', handleRefreshToken);
-router.post('/register', handleNewUser);
-router.get('/logout', handleLogout);
+router.route('/').post(loginLimiter, handleLogin);
+router.route('/refresh').get(handleRefreshToken);
+router.route('/register').post(handleNewUser);
+router.route('/logout').get(handleLogout);
 
 export = router;
