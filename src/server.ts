@@ -9,6 +9,7 @@ import path from 'path';
 import errorHandler from './middleware/errorHandler';
 import credentials from './middleware/credentials';
 import verifyJWT from './middleware/verifyJWT';
+import { logEvents } from './middleware/logEvents';
 
 dotenv.config();
 
@@ -42,7 +43,7 @@ app.use('/', express.static(path.join(__dirname, '../public')));
 // routes
 app.use('/', require('./routes/root'));
 app.use('/auth', require('./routes/auth'));
-app.use('/products', require('./routes/api/products'))
+app.use('/products', require('./routes/api/products'));
 
 // verified routes
 app.use(verifyJWT);
@@ -65,5 +66,13 @@ mongoose.connection.once('open', () => {
   console.log('Connected to MongoDB');
   app.listen(PORT, () =>
     console.log(`Server is running at http://localhost:${PORT}`)
+  );
+});
+
+mongoose.connection.on('error', (err) => {
+  console.log(err);
+  logEvents(
+    `${err.no}: ${err.code}\t${err.syscall}\t{err.hostname}`,
+    'mongoErrLog.log'
   );
 });
