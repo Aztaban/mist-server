@@ -5,6 +5,9 @@ interface ProductRequest extends Request {
   body: Product;
 }
 
+// @desc Get all products
+// @route GET /products
+// @access Public
 const getAllProducts = async (req: Request, res: Response): Promise<void> => {
   const products: Product[] = await ProductModel.find();
   if (products.length === 0) {
@@ -14,6 +17,9 @@ const getAllProducts = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+// @desc Create new product
+// @route POST /products/
+// @access Private
 const createNewProduct = async (
   req: ProductRequest,
   res: Response
@@ -39,11 +45,14 @@ const createNewProduct = async (
   }
 };
 
+// @desc Update product
+// @route PATCH /products/:id
+// @access Private
 const updateProduct = async (req: Request, res: Response): Promise<void> => {
   try {
     const productId: string = req.params.id;
     const updatedProductData: Product = req.body;
-    
+
     // Check if the product ID is provided
     if (!productId) {
       res.status(400).json({ message: 'Product ID is required' });
@@ -58,13 +67,13 @@ const updateProduct = async (req: Request, res: Response): Promise<void> => {
       res.status(404).json({ message: 'Product not found' });
       return;
     }
- 
+
     // Update product
     const updatedProduct: Product | null = await ProductModel.findByIdAndUpdate(
       productId,
       updatedProductData
     ).exec();
-    console.log(updatedProduct)
+    console.log(updatedProduct);
 
     // Check if the product was updated successfully
     if (!updatedProduct) {
@@ -73,13 +82,15 @@ const updateProduct = async (req: Request, res: Response): Promise<void> => {
     } else {
       res.json({ message: 'Product updated successfully', updatedProduct });
     }
-
   } catch (error) {
     console.error('Error creating product:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
 
+// @desc Delete product
+// @route DELETE /products
+// @access Private
 const deleteProduct = async (req: Request, res: Response): Promise<void> => {
   const productId = req.body._id;
   if (!productId) {
@@ -97,6 +108,9 @@ const deleteProduct = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+// @desc Get product by ID
+// @route get /products/:id
+// @access Public
 const getProduct = async (req: Request, res: Response): Promise<void> => {
   const productId = req.params.id;
   if (!productId) {

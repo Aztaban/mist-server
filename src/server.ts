@@ -46,6 +46,7 @@ app.use('/', express.static(path.join(__dirname, '../public')));
 app.use('/', require('./routes/root'));
 app.use('/auth', require('./routes/auth'));
 app.use('/products', require('./routes/api/products'));
+app.use('/posts', require('./routes/api/posts'));
 
 // verified routes
 app.use(verifyJWT);
