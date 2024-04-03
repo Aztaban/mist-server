@@ -9,8 +9,11 @@ router
   .route('/')
   .get(postsController.getAllPosts)
   .post(postsController.createNewPost)
-  .delete();
+  .delete(postsController.deletePost);
 
-router.route('/:id').get().put();
+router
+  .route('/:id')
+  .get(postsController.getPostById)
+  .put(postsController.updatePost);
 
 export = router;
