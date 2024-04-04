@@ -8,12 +8,18 @@ const router: Router = express.Router();
 router
   .route('/')
   .get(postsController.getAllPosts)
-  .post(postsController.createNewPost)
-  .delete(postsController.deletePost);
+  .post(
+    verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor),
+    postsController.createNewPost
+  )
+  .delete(verifyRoles(ROLES_LIST.Admin), postsController.deletePost);
 
 router
   .route('/:id')
   .get(postsController.getPostById)
-  .put(postsController.updatePost);
+  .put(
+    verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor),
+    postsController.updatePost
+  );
 
 export = router;
