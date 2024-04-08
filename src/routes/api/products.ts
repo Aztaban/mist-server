@@ -14,6 +14,9 @@ router
 router
   .route('/:id')
   .get(productsController.getProduct)
-  .put(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor), productsController.updateProduct)
+  .put(
+    verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor),
+    productsController.updateProduct
+  );
 
 export = router;
