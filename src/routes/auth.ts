@@ -10,6 +10,6 @@ const router: Router = express.Router();
 router.route('/').post(loginLimiter, handleLogin);
 router.route('/refresh').get(handleRefreshToken);
 router.route('/register').post(handleNewUser);
-router.route('/logout').get(handleLogout);
+router.route('/logout').post(handleLogout);
 
 export = router;
