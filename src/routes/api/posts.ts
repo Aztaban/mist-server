@@ -9,18 +9,16 @@ router
   .route('/')
   .get(postsController.getAllPosts)
   .post(
-    //verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor),
+    verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor),
     postsController.createNewPost
   )
-  .delete(
-    //verifyRoles(ROLES_LIST.Admin), 
-    postsController.deletePost);
+  .delete(verifyRoles(ROLES_LIST.Admin), postsController.deletePost);
 
 router
   .route('/:id')
   .get(postsController.getPostById)
   .put(
-    //verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor),
+    verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor),
     postsController.updatePost
   );
 
