@@ -1,9 +1,0 @@
-02.04.2024	17:32:21	7a281897-083a-42eb-8ab2-d39a47948eee	Error: Not allowed by CORS
-02.04.2024	17:32:23	7e378210-0e4d-4bb4-b0e1-9a45d0ef901d	Error: Not allowed by CORS
-02.04.2024	17:34:16	8e67cf98-35ab-4f5f-ba1d-10a97456f401	Error: Not allowed by CORS
-02.04.2024	17:34:18	a2d39f67-73a0-4b24-ba2c-9d314d5cef16	Error: Not allowed by CORS
-02.04.2024	17:34:19	e0e3111d-4e77-475b-a244-82f52778a4d2	Error: Not allowed by CORS
-02.04.2024	17:34:21	8b8dc449-cb57-471f-94af-6a8a153bf2b9	Error: Not allowed by CORS
-02.04.2024	17:41:25	fade6aa6-adae-4a74-9d95-91cd54060023	SyntaxError: Expected ',' or '}' after property value in JSON at position 350
-02.04.2024	17:42:50	0dda221f-87c9-453d-9cb9-f87f0a2f70b5	SyntaxError: Unexpected non-whitespace character after JSON at position 412
-03.04.2024	02:22:30	b385b53a-5f02-4144-b711-8f9aa26e34a8	SyntaxError: Bad control character in string literal in JSON at position 247
