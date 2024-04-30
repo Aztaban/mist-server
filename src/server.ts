@@ -10,6 +10,7 @@ import errorHandler from './middleware/errorHandler';
 import credentials from './middleware/credentials';
 import verifyJWT from './middleware/verifyJWT';
 import { logEvents, logger } from './middleware/logEvents';
+import verifyRoles from './middleware/verifyRoles';
 
 dotenv.config();
 
@@ -19,7 +20,7 @@ const PORT: number = parseInt(process.env.PORT || '3500', 10);
 // Connect to mongo DB
 connectDB();
 
-app.use(logger)
+app.use(logger);
 
 // Handle options credentials check - before CORS!
 // and fetch cokies credentials requirement
@@ -48,8 +49,12 @@ app.use('/auth', require('./routes/auth'));
 app.use('/products', require('./routes/api/products'));
 app.use('/posts', require('./routes/api/posts'));
 
-// verified routes
+// Middleware to verify JWT for the routes below
 app.use(verifyJWT);
+
+// verified routes
+app.use('/orders', require('./routes/api/orders'));
+app.use('/users', require('./routes/api/users'));
 
 // default route
 app.all('/*', (req: Request, res: Response) => {
