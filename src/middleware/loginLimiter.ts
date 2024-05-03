@@ -8,7 +8,7 @@ const loginLimiter: RateLimitRequestHandler = rateLimit({
   message: 'Too many login attempts from this IP, please try again after a 60 second',
   handler: (req: Request, res: Response, next: NextFunction, optionsUsed: Options ) => {
     const ipAdress = req.socket.remoteAddress;
-    logEvents(`Too Many Requests: Login Attempts\t${req.method}\t${req.url}\t${req.headers.origin}\t${ipAdress}`, 'errLog.log');
+    logEvents(`Too Many Requests: Login Attempts\t${req.method}\t${req.url}\t${req.headers.origin}\t${ipAdress}`, 'logLimit.log');
     res.status(optionsUsed.statusCode || 429).send(optionsUsed.message);
   },
   statusCode: 429,
