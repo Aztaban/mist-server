@@ -7,7 +7,7 @@ const router: Router = express.Router();
 router
   .route('/') 
   .get(ordersController.getAllOrders)  // Get all Orders
-  .post(); // Create a new Order 
+  .post(ordersController.createNewOrder); // Create a new Order 
 
 router
   .route('/:id')

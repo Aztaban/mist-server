@@ -1,6 +1,10 @@
-import OrderModel, { Order } from '../model/Order';
+import OrderModel, { Order, OrderItem } from '../model/Order';
 import { Request, Response } from 'express';
 import UserModel from '../model/User';
+import { OrderStatus } from '../config/orderStatus';
+import { generateOrderNumber } from '../utils/orderNumberGenerator';
+import { AuthRequest } from '../middleware/verifyJWT';
+import { User } from '../model/User';
 
 // @desc Get all orders
 // @route GET /orders
@@ -25,7 +29,7 @@ const getAllOrders = async (req: Request, res: Response): Promise<void> => {
 const getOrderById = async (req: Request, res: Response): Promise<void> => {
   const orderId = req.params.id;
   if (!orderId) {
-    res.status(400).json({ message: `Order ID required` })
+    res.status(400).json({ message: `Order ID required` });
     return;
   }
   try {
@@ -40,20 +44,45 @@ const getOrderById = async (req: Request, res: Response): Promise<void> => {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
-}
+};
 
 // @desc Create new order
 // @route POST /orders
 // @access Private
-const createNewOrder = async (req: Request, res: Response): Promise<void> => {
-  
-}
+const createNewOrder = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const orderNo: number = await generateOrderNumber();
+    const username = req.user;
+    const { products }: { products: OrderItem[] } = req.body;
 
+    const user: User | null = await UserModel.findOne({ username });
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
 
+    const newOrder: Order = new OrderModel({
+      orderNo,
+      user,
+      products,
+      status: OrderStatus.PENDING,
+      paid: false,
+      created_at: new Date(),
+      updated_at: new Date(),
+    });
+
+    const order: Order = await OrderModel.create(newOrder);
+    res.status(201).json(order);
+  } catch {}
+};
 
 const ordersController = {
   getAllOrders,
   getOrderById,
-}
+  createNewOrder
+};
 
 export default ordersController;
