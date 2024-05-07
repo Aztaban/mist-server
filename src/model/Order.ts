@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 import { OrderStatus } from '../config/orderStatus';
 
-interface OrderItem {
+export interface OrderItem {
   product: Types.ObjectId; // Reference to Product
   quantity: number;
   price: number;
