@@ -105,7 +105,7 @@ const deletePost = async (req: Request, res: Response): Promise<void> => {
     res.status(404).json({ message: `No post found with ID ${postId}` });
     return;
   } else {
-    res.json({ message: 'Postt deleted successfully', deletedPost });
+    res.json({ message: 'Post deleted successfully', deletedPost });
   }
 };
 
