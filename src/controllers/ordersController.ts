@@ -11,7 +11,7 @@ import { User } from '../model/User';
 // @access Private
 const getAllOrders = async (req: Request, res: Response): Promise<void> => {
   try {
-    const orders: Order[] = await OrderModel.find();
+    const orders: Order[] = await OrderModel.find().exec();
     if (orders.length === 0) {
       res.status(204).json({ message: 'No products found' });
     } else {
@@ -58,15 +58,16 @@ const createNewOrder = async (
     const username = req.user;
     const { products }: { products: OrderItem[] } = req.body;
 
-    const user: User | null = await UserModel.findOne({ username });
-    if (!user) {
+    const foundUser: User | null = await UserModel.findOne({ username });
+
+    if (!foundUser) {
       res.status(404).json({ error: 'User not found' });
       return;
     }
 
     const newOrder: Order = new OrderModel({
       orderNo,
-      user,
+      user: foundUser._id,
       products,
       status: OrderStatus.PENDING,
       paid: false,
@@ -75,8 +76,12 @@ const createNewOrder = async (
     });
 
     const order: Order = await OrderModel.create(newOrder);
+
     res.status(201).json(order);
-  } catch {}
+  } catch (error) {
+    console.error('Error creating new order:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 };
 
 const ordersController = {
