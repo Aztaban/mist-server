@@ -71,6 +71,14 @@ const orderSchema: Schema = new Schema(
   }
 );
 
+orderSchema.pre<Order>(['find', 'findOne'], function(next) {
+  this.populate({
+    path: 'user',
+    select: 'username _id'
+  });
+  next();
+})
+
 const OrderModel = mongoose.model<Order>('Order', orderSchema);
 
 export default OrderModel;
