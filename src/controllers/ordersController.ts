@@ -87,7 +87,7 @@ const createNewOrder = async (
 const ordersController = {
   getAllOrders,
   getOrderById,
-  createNewOrder
+  createNewOrder,
 };
 
 export default ordersController;

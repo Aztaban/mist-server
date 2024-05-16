@@ -7,6 +7,22 @@ export interface OrderItem {
   price: number;
 }
 
+const orderItemSchema: Schema = new Schema({
+  product: {
+    type: Types.ObjectId,
+    ref: 'Product',
+    required: true,
+  },
+  quantity: {
+    type: Number,
+    required: true,
+  },
+  price: {
+    type: Number,
+    required: true,
+  },
+});
+
 export interface Order extends Document {
   orderNo: number;
   user: Types.ObjectId; // Reference to User
@@ -30,23 +46,7 @@ const orderSchema: Schema = new Schema(
       ref: 'User',
       required: true,
     },
-    products: [
-      {
-        product: {
-          type: Types.ObjectId,
-          ref: 'Product',
-          required: true,
-        },
-        quantity: {
-          type: Number,
-          required: true,
-        },
-        price: {
-          type: Number,
-          required: true,
-        },
-      },
-    ],
+    products: [orderItemSchema],
     status: {
       type: String,
       enum: Object.values(OrderStatus),
@@ -71,13 +71,18 @@ const orderSchema: Schema = new Schema(
   }
 );
 
-orderSchema.pre<Order>(['find', 'findOne'], function(next) {
+orderSchema.pre<Order>(['find', 'findOne'], function (next) {
   this.populate({
     path: 'user',
-    select: 'username _id'
+    select: 'username _id',
+  });
+  this.populate({
+    path: 'products.product',
+    model: 'Product',
+    select: 'name image',
   });
   next();
-})
+});
 
 const OrderModel = mongoose.model<Order>('Order', orderSchema);
 
