@@ -15,8 +15,8 @@ router
   .put(ordersController.updateOrder) // Update Order
   .delete(ordersController.deleteOrder) // Delete Order
 
-router.route('/:id/status').put() // Update Order Status
-router.route('/:id/pay').put() // Mark Order as Paid
-router.route('/:status').get() // Get Orders by Status
+router.route('/:id/status').put(ordersController.updateOrderStatus) // Update Order Status
+router.route('/:id/pay').put(ordersController.updateOrderPaid) // Mark Order as Paid
+//router.route('/:status').get() // Get Orders by Status
 
 export = router;

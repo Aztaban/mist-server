@@ -139,12 +139,82 @@ const deleteOrder = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+// @desc Update order status by ID
+// @route PUT /orders/:id/status
+// @access Private
+const updateOrderStatus = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const orderId = req.params.id;
+  if (!orderId) {
+    res.status(400).json({ message: `Order ID required` });
+    return;
+  }
+
+  try {
+    const { status }: { status: OrderStatus } = req.body;
+
+    if (!status) {
+      res.status(400).json({ message: `Status field is required` });
+      return;
+    }
+
+    const updatedOrder: Order | null = await OrderModel.findByIdAndUpdate(
+      orderId,
+      { $set: { status } },
+      { new: true }
+    ).exec();
+
+    if (!updatedOrder) {
+      res.status(404).json({ message: `No Order found with ID ${orderId}` });
+      return;
+    }
+
+    res.json(updatedOrder);
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+// @desc Update pay status by ID
+// @route PUT /orders/:id/pay
+// @access Private
+const updateOrderPaid = async (req: Request, res: Response): Promise<void> => {
+  const orderId = req.params.id;
+  if (!orderId) {
+    res.status(400).json({ message: `Order ID required` });
+    return;
+  }
+
+  try {
+    const updatedOrder: Order | null = await OrderModel.findByIdAndUpdate(
+      orderId,
+      { $set: { paid: true } },
+      { new: true }
+    ).exec();
+
+    if (!updatedOrder) {
+      res.status(404).json({ message: `No Order found with ID ${orderId}` });
+      return;
+    }
+
+    res.json(updatedOrder);
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
 const ordersController = {
   getAllOrders,
   getOrderById,
   createNewOrder,
   deleteOrder,
-  updateOrder
+  updateOrder,
+  updateOrderStatus,
+  updateOrderPaid
 };
 
 export default ordersController;
