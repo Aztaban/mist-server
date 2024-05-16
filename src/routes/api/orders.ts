@@ -13,7 +13,7 @@ router
   .route('/:id')
   .get(ordersController.getOrderById)  // Get Order by ID
   .put() // Update Order
-  .delete() // Delete Order
+  .delete(ordersController.deleteOrder) // Delete Order
 
 router.route('/:id/status').put() // Update Order Status
 router.route('/:id/pay').put() // Mark Order as Paid
