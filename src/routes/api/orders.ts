@@ -12,7 +12,7 @@ router
 router
   .route('/:id')
   .get(ordersController.getOrderById)  // Get Order by ID
-  .put() // Update Order
+  .put(ordersController.updateOrder) // Update Order
   .delete(ordersController.deleteOrder) // Delete Order
 
 router.route('/:id/status').put() // Update Order Status

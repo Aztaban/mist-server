@@ -84,6 +84,41 @@ const createNewOrder = async (
   }
 };
 
+// @desc Update order by ID
+// @route PUT /orders/:id
+// @access Private
+const updateOrder = async (req: Request, res: Response): Promise<void> => {
+  const orderId = req.params.id;
+  if (!orderId) {
+    res.status(400).json({ message: `Order ID required` });
+    return;
+  }
+  try {
+    const { products, status, paid }: Partial<Order> = req.body;
+
+    const updatedFields: Partial<Order> = {};
+
+    if (products) updatedFields.products = products;
+    if (status) updatedFields.status = status;
+    if (paid !== undefined) updatedFields.paid = paid;
+
+    const updatedOrder: Order | null = await OrderModel.findByIdAndUpdate(
+      orderId,
+      { $set: updatedFields },
+      { new: true }
+    ).exec();
+
+    if (!updatedOrder) {
+      res.status(404).json({ message: `No Order found with ID ${orderId}` });
+      return;
+    }
+    res.json(updatedOrder);
+  } catch (error) {
+    console.error('Error updating order:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
 // @desc Delete order
 // @route DELETE /orders/:id
 // @access Private
@@ -93,20 +128,23 @@ const deleteOrder = async (req: Request, res: Response): Promise<void> => {
     res.status(400).json({ message: `Order ID required` });
     return;
   }
-  const deletedOrder: Order | null = await OrderModel.findByIdAndDelete(orderId).exec();
+  const deletedOrder: Order | null = await OrderModel.findByIdAndDelete(
+    orderId
+  ).exec();
   if (!deletedOrder) {
     res.status(404).json({ message: `No Order found with ID ${orderId}` });
     return;
   } else {
     res.json({ message: 'Post deleted successfully', deletedOrder });
   }
-}
+};
 
 const ordersController = {
   getAllOrders,
   getOrderById,
   createNewOrder,
-  deleteOrder
+  deleteOrder,
+  updateOrder
 };
 
 export default ordersController;
