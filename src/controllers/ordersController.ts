@@ -207,6 +207,46 @@ const updateOrderPaid = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+// @desc get orders for user
+// @route GET /orders/user
+// @access Private
+const getOrdersForUser = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  const username: string | undefined  = req.user;
+
+  try {
+    // Check if username exists
+    if (!username) {
+      res.status(400).json({ error: 'User is not authenticated' });
+      return;
+    }
+
+    const foundUser: User | null = await UserModel.findOne({ username }).exec();
+
+    if (!foundUser) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    } 
+
+    const userOrders: Order[] = await OrderModel.find({ user: foundUser._id }).exec();
+
+    if (userOrders.length === 0) {
+      console.log(`No orders found for user: ${foundUser._id}`);
+      res.status(204).json({ message: 'No orders found for this user' });
+    } else {
+      console.log(`Found ${userOrders.length} orders for user: ${foundUser._id}`);
+      res.status(200).json(userOrders);
+    }
+
+  } catch (error) {
+    // Log the error details
+    console.error('Error getting orders for user:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
 const ordersController = {
   getAllOrders,
   getOrderById,
@@ -214,7 +254,8 @@ const ordersController = {
   deleteOrder,
   updateOrder,
   updateOrderStatus,
-  updateOrderPaid
+  updateOrderPaid,
+  getOrdersForUser,
 };
 
 export default ordersController;
