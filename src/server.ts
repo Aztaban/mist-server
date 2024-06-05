@@ -54,7 +54,6 @@ app.use(verifyJWT);
 
 // verified routes
 app.use('/orders', require('./routes/api/orders'));
-app.use('/users', require('./routes/api/users'));
 
 // default route
 app.all('/*', (req: Request, res: Response) => {
