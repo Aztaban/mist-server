@@ -8,11 +8,13 @@ const verifyRoles = (...allowedRoles: number[]) => {
       return;
     }
     const rolesArray: number[] = [...allowedRoles];
-    const result = req.roles.map((role: number) => rolesArray.includes(role)).find((val: boolean) => val === true);
+    const result: boolean = req.roles.some(role => rolesArray.includes(role));
     if (!result ) {
-      res.sendStatus(401);
-      next();
+      res.sendStatus(403); // Forbidden if the user doesn't have the required roles
+      return;
     }
+
+    next();
   }
 }
 
