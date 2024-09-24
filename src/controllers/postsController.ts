@@ -92,7 +92,7 @@ const updatePost = async (req: Request, res: Response): Promise<void> => {
 // @route DELETE /posts
 // @access Private
 const deletePost = async (req: Request, res: Response): Promise<void> => {
-  const postId = req.body.id;
+  const postId = req.params.id;
   console.log(postId)
   if (!postId) {
     res.status(400).json({ message: `Product ID required` });
