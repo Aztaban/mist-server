@@ -11,7 +11,7 @@ const handleRefreshToken = async (
   const refreshToken: string = req.cookies?.jwt;
 
   if (!refreshToken) {
-    res.sendStatus(401).json({ message: 'Refresh token not found. Please log in again.' });;
+    res.status(401).json({ message: 'Refresh token not found. Please log in again.' });;
     return;
   }
 
