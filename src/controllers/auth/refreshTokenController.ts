@@ -8,11 +8,10 @@ const handleRefreshToken = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const cookies = req.cookies;
-  const refreshToken: string = cookies.jwt;
+  const refreshToken: string = req.cookies?.jwt;
 
-  if (!cookies?.jwt) {
-    res.sendStatus(401);
+  if (!refreshToken) {
+    res.sendStatus(401).json({ message: 'Refresh token not found. Please log in again.' });;
     return;
   }
 
@@ -45,7 +44,7 @@ const handleRefreshToken = async (
         const accessToken = jwt.sign(
           accessTokenPayload,
           process.env.ACCESS_TOKEN_SECRET as Secret,
-          { expiresIn: '10s' }
+          { expiresIn: '15m' }
         );
         res.json({ accessToken });
       }
