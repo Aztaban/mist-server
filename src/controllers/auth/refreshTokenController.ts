@@ -20,7 +20,7 @@ const handleRefreshToken = async (
       refreshToken,
     }).exec();
     if (!foundUser) {
-      res.sendStatus(403);
+      res.status(401).json({ message: 'Forbidden: Invalid refresh token.' });
       return;
     }
 
@@ -29,7 +29,7 @@ const handleRefreshToken = async (
       process.env.REFRESH_TOKEN_SECRET as Secret,
       (err: any, decoded: any) => {
         if (err || foundUser.username !== decoded.username) {
-          res.sendStatus(403);
+          res.status(401).json({ message: 'Forbidden: Invalid refresh token.' });
           return;
         }
 
@@ -50,7 +50,7 @@ const handleRefreshToken = async (
       }
     );
   } catch (error) {
-    console.error(error);
+    console.error('Error verifying refresh token:', error);
     res.sendStatus(500);
   }
 };
