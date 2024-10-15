@@ -23,12 +23,33 @@ const orderItemSchema: Schema = new Schema({
   },
 });
 
+// ShippingAddress Interface
+export interface ShippingAddress {
+  address: string;
+  city: string;
+  postalCode: string;
+  country: string;
+}
+
+// ShippingAddress Schema
+const shippingAddressSchema: Schema = new Schema({
+  address: { type: String, required: true },
+  city: { type: String, required: true },
+  postalCode: { type: String, required: true },
+  country: { type: String, required: true },
+});
+
 export interface Order extends Document {
   orderNo: number;
   user: Types.ObjectId; // Reference to User
   products: OrderItem[];
+  shippingAdress: ShippingAddress;
   status: OrderStatus;
-  paid: boolean;
+  itemsPrice: number;
+  shippingPrice: number;
+  totalPrice: number;
+  isPaid: boolean;
+  paidAt?: Date | null;
   created_at: Date;
   updated_at: Date;
   closed_at?: Date | null;
@@ -47,14 +68,34 @@ const orderSchema: Schema = new Schema(
       required: true,
     },
     products: [orderItemSchema],
+    shippingAddress: {
+      type: shippingAddressSchema,
+      required: true,
+    },
     status: {
       type: String,
       enum: Object.values(OrderStatus),
       required: true,
     },
-    paid: {
+    itemsPrice: {
+      type: Number,
+      required: true,
+    },
+    shippingPrice: {
+      type: Number,
+      required: true,
+    },
+    totalPrice: {
+      type: Number,
+      required: true,
+    },
+    isPaid: {
       type: Boolean,
       default: false,
+    },
+    paidAt: {
+      type: Date,
+      default: null,
     },
     created_at: {
       type: Date,
@@ -67,7 +108,7 @@ const orderSchema: Schema = new Schema(
     },
   },
   {
-    timestamps: { updatedAt: 'updated_at' },
+    timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
   }
 );
 

@@ -1,4 +1,4 @@
-import OrderModel, { Order, OrderItem } from '../model/Order';
+import OrderModel, { Order, OrderItem, ShippingAddress } from '../model/Order';
 import { Request, Response } from 'express';
 import UserModel from '../model/User';
 import { OrderStatus } from '../config/orderStatus';
@@ -56,12 +56,30 @@ const createNewOrder = async (
   try {
     const orderNo: number = await generateOrderNumber();
     const username = req.user;
-    const { products }: { products: OrderItem[] } = req.body;
+    const {
+      products,
+      shippingAddress,
+      shippingPrice,
+    }: {
+      products: OrderItem[];
+      shippingAddress: ShippingAddress;
+      shippingPrice: number;
+    } = req.body;
+
+    const itemsPrice = products.reduce((total, item) => total + item.price * item.quantity, 0);
+    const totalPrice = itemsPrice + shippingPrice;
 
     const foundUser: User | null = await UserModel.findOne({ username });
 
+    // User validation
     if (!foundUser) {
       res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    // products and address validation
+    if (!products || products.length === 0 || !shippingAddress) {
+      res.status(400).json({ error: 'Products and shipping address are required' });
       return;
     }
 
@@ -69,13 +87,15 @@ const createNewOrder = async (
       orderNo,
       user: foundUser._id,
       products,
+      shippingAddress,
       status: OrderStatus.PENDING,
-      paid: false,
-      created_at: new Date(),
-      updated_at: new Date(),
+      itemsPrice,
+      shippingPrice,
+      totalPrice,
+      isPaid: false,
     });
 
-    const order: Order = await OrderModel.create(newOrder);
+    const order: Order = await newOrder.save();
 
     res.status(201).json(order);
   } catch (error) {
@@ -94,13 +114,13 @@ const updateOrder = async (req: Request, res: Response): Promise<void> => {
     return;
   }
   try {
-    const { products, status, paid }: Partial<Order> = req.body;
+    const { products, status, isPaid }: Partial<Order> = req.body;
 
     const updatedFields: Partial<Order> = {};
 
     if (products) updatedFields.products = products;
     if (status) updatedFields.status = status;
-    if (paid !== undefined) updatedFields.paid = paid;
+    if (isPaid !== undefined) updatedFields.isPaid = isPaid;
 
     const updatedOrder: Order | null = await OrderModel.findByIdAndUpdate(
       orderId,
@@ -191,7 +211,7 @@ const updateOrderPaid = async (req: Request, res: Response): Promise<void> => {
   try {
     const updatedOrder: Order | null = await OrderModel.findByIdAndUpdate(
       orderId,
-      { $set: { paid: true } },
+      { $set: { isPaid: true } },
       { new: true }
     ).exec();
 
@@ -214,7 +234,7 @@ const getOrdersForUser = async (
   req: AuthRequest,
   res: Response
 ): Promise<void> => {
-  const username: string | undefined  = req.user;
+  const username: string | undefined = req.user;
 
   try {
     // Check if username exists
@@ -228,18 +248,21 @@ const getOrdersForUser = async (
     if (!foundUser) {
       res.status(404).json({ error: 'User not found' });
       return;
-    } 
+    }
 
-    const userOrders: Order[] = await OrderModel.find({ user: foundUser._id }).exec();
+    const userOrders: Order[] = await OrderModel.find({
+      user: foundUser._id,
+    }).exec();
 
     if (userOrders.length === 0) {
       console.log(`No orders found for user: ${foundUser._id}`);
       res.status(204).json({ message: 'No orders found for this user' });
     } else {
-      console.log(`Found ${userOrders.length} orders for user: ${foundUser._id}`);
+      console.log(
+        `Found ${userOrders.length} orders for user: ${foundUser._id}`
+      );
       res.status(200).json(userOrders);
     }
-
   } catch (error) {
     // Log the error details
     console.error('Error getting orders for user:', error);
