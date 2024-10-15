@@ -11,25 +11,30 @@ export interface User extends Document {
   refreshToken?: string;
 }
 
-const userSchema: Schema = new Schema({
-  username: {
-    type: String,
-    required: true,
-  },
-  roles: {
-    User: {
-      type: Number,
-      default: 1012,
+const userSchema: Schema = new Schema(
+  {
+    username: {
+      type: String,
+      required: true,
     },
-    Editor: Number,
-    Admin: Number,
+    roles: {
+      User: {
+        type: Number,
+        default: 1012,
+      },
+      Editor: Number,
+      Admin: Number,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    refreshToken: String,
   },
-  password: {
-    type: String,
-    required: true,
-  },
-  refreshToken: String,
-});
+  {
+    timestamps: true, 
+  }
+);
 
 const UserModel = mongoose.model<User>('User', userSchema);
 

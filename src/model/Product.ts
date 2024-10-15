@@ -5,6 +5,7 @@ export interface Product extends Document {
   productType: string;
   price: number;
   image: string;
+  countInStock: number;
   details: {
     author: string;
     releaseDate: string;
@@ -27,6 +28,10 @@ const productSchema: Schema = new Schema({
   },
   image: {
     type: String,
+    required: true,
+  },
+  countInStock: {
+    type: Number,
     required: true,
   },
   details: {
