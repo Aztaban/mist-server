@@ -2,6 +2,7 @@ import UserModel, { User } from '../../model/User';
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt, { Secret } from 'jsonwebtoken';
+import { ROLES_LIST } from '../../config/roles_list';
 
 export interface AccessTokenPayload {
   UserInfo: {
@@ -33,6 +34,8 @@ const handleLogin = async (req: Request, res: Response): Promise<void> => {
           },
         };
 
+        const isAdmin = roles.includes(ROLES_LIST.Admin)
+
         const accessToken: string = jwt.sign(
           accessTokenPayload,
           process.env.ACCESS_TOKEN_SECRET as Secret,
@@ -60,7 +63,7 @@ const handleLogin = async (req: Request, res: Response): Promise<void> => {
         });
 
         // Send authorization roles and access token to user
-        res.json({ accessToken });
+        res.json({ accessToken, isAdmin });
       } else {
         res.sendStatus(401);
       }
