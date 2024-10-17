@@ -100,7 +100,6 @@ const orderSchema: Schema = new Schema(
     created_at: {
       type: Date,
       required: true,
-      default: Date.now,
     },
     closed_at: {
       type: Date,
