@@ -3,6 +3,7 @@ import { OrderStatus } from '../config/orderStatus';
 
 export interface OrderItem {
   product: Types.ObjectId; // Reference to Product
+  name: string;
   quantity: number;
   price: number;
 }
@@ -12,6 +13,10 @@ const orderItemSchema: Schema = new Schema({
     type: Types.ObjectId,
     ref: 'Product',
     required: true,
+  },
+  name: {
+    type: String,
+    required: false,
   },
   quantity: {
     type: Number,
@@ -48,8 +53,8 @@ export interface Order extends Document {
   totalPrice: number;
   isPaid: boolean;
   paidAt?: Date | null;
-  created_at: Date;
-  updated_at: Date;
+  created_at?: Date | null;
+  updated_at?: Date | null;
   closed_at?: Date | null;
 }
 
@@ -97,7 +102,11 @@ const orderSchema: Schema = new Schema(
     },
     created_at: {
       type: Date,
-      required: true,
+      default: null,
+    },
+    updated_at: {
+      type: Date,
+      default: null
     },
     closed_at: {
       type: Date,

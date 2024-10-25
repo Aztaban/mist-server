@@ -86,14 +86,17 @@ const createNewOrder = async (
     const newOrder: Order = new OrderModel({
       orderNo,
       user: foundUser._id,
-      products,
+      products: products,
       shippingAddress,
       status: OrderStatus.PENDING,
       itemsPrice,
       shippingPrice,
       totalPrice,
       isPaid: false,
+      created_at: new Date(),
     });
+
+    console.log(newOrder)
 
     const order: Order = await newOrder.save();
 
