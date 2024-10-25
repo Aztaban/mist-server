@@ -23,7 +23,6 @@ const orderItemSchema: Schema = new Schema({
   },
 });
 
-// ShippingAddress Interface
 export interface ShippingAddress {
   address: string;
   city: string;
@@ -31,7 +30,6 @@ export interface ShippingAddress {
   country: string;
 }
 
-// ShippingAddress Schema
 const shippingAddressSchema: Schema = new Schema({
   address: { type: String, required: true },
   city: { type: String, required: true },
