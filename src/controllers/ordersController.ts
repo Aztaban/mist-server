@@ -26,7 +26,7 @@ const getAllOrders = async (req: Request, res: Response): Promise<void> => {
 // @desc Get order by ID
 // @route GET /orders/:id
 // @access Private
-const getOrderById = async (req: Request, res: Response): Promise<void> => {
+const getOrderById = async (req: AuthRequest, res: Response): Promise<void> => {
   const orderId = req.params.id;
   if (!orderId) {
     res.status(400).json({ message: `Order ID required` });
@@ -100,7 +100,7 @@ const createNewOrder = async (
 
     const order: Order = await newOrder.save();
 
-    res.status(201).json(order);
+    res.status(201).json(order._id);
   } catch (error) {
     console.error('Error creating new order:', error);
     res.status(500).json({ error: 'Internal Server Error' });
