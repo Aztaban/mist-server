@@ -14,7 +14,7 @@ router.route('/user').get(verifyRoles(ROLES_LIST.User),ordersController.getOrder
 
 router
   .route('/:id')
-  .get(ordersController.getOrderById) // Get Order by ID
+  .get(verifyRoles(ROLES_LIST.User ,ROLES_LIST.Editor, ROLES_LIST.Admin),ordersController.getOrderById) // Get Order by ID
   .put(verifyRoles(ROLES_LIST.Editor, ROLES_LIST.Admin),ordersController.updateOrder) // Update Order
   .delete(verifyRoles(ROLES_LIST.Admin),ordersController.deleteOrder); // Delete Order
 
