@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 import { OrderStatus } from '../config/orderStatus';
+import { ShippingMethod } from '../config/shippingMethod';
 
 export interface OrderItem {
   product: Types.ObjectId; // Reference to Product
@@ -48,6 +49,7 @@ export interface Order extends Document {
   products: OrderItem[];
   shippingAdress: ShippingAddress;
   status: OrderStatus;
+  shippingMethod: ShippingMethod;
   itemsPrice: number;
   shippingPrice: number;
   totalPrice: number;
@@ -78,6 +80,11 @@ const orderSchema: Schema = new Schema(
     status: {
       type: String,
       enum: Object.values(OrderStatus),
+      required: true,
+    },
+    shippingMethod: {
+      type: String,
+      enum: Object.values(ShippingMethod),
       required: true,
     },
     itemsPrice: {

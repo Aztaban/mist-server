@@ -5,6 +5,7 @@ import { OrderStatus } from '../config/orderStatus';
 import { generateOrderNumber } from '../utils/orderNumberGenerator';
 import { AuthRequest } from '../middleware/verifyJWT';
 import { User } from '../model/User';
+import { ShippingMethod } from '../config/shippingMethod';
 
 // @desc Get all orders
 // @route GET /orders
@@ -59,10 +60,12 @@ const createNewOrder = async (
     const {
       products,
       shippingAddress,
+      shippingMethod,
       shippingPrice,
     }: {
       products: OrderItem[];
       shippingAddress: ShippingAddress;
+      shippingMethod: ShippingMethod;
       shippingPrice: number;
     } = req.body;
 
@@ -78,7 +81,7 @@ const createNewOrder = async (
     }
 
     // products and address validation
-    if (!products || products.length === 0 || !shippingAddress) {
+    if (!products || products.length === 0 || !shippingAddress || !shippingMethod) {
       res.status(400).json({ error: 'Products and shipping address are required' });
       return;
     }
@@ -89,6 +92,7 @@ const createNewOrder = async (
       products: products,
       shippingAddress,
       status: OrderStatus.PENDING,
+      shippingMethod,
       itemsPrice,
       shippingPrice,
       totalPrice,
