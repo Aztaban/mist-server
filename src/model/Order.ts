@@ -113,7 +113,7 @@ const orderSchema: Schema = new Schema(
     },
     updated_at: {
       type: Date,
-      default: null
+      default: null,
     },
     closed_at: {
       type: Date,
@@ -130,11 +130,11 @@ orderSchema.pre<Order>(['find', 'findOne'], function (next) {
     path: 'user',
     select: 'username _id',
   });
-  this.populate({
+/*   this.populate({
     path: 'products.product',
     model: 'Product',
     select: 'name image',
-  });
+  }); */
   next();
 });
 
