@@ -198,7 +198,7 @@ const updateOrderStatus = async (
       return;
     }
 
-    res.json(updatedOrder);
+    res.json({ message: 'Order status updated successfully' });
   } catch (error) {
     console.error('Error updating order status:', error);
     res.status(500).json({ error: 'Internal Server Error' });
