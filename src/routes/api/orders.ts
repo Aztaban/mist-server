@@ -19,6 +19,7 @@ router
   .delete(verifyRoles(ROLES_LIST.Admin),ordersController.deleteOrder); // Delete Order
 
 router.route('/:id/status').put(verifyRoles(ROLES_LIST.Editor, ROLES_LIST.Admin),ordersController.updateOrderStatus); // Update Order Status
+router.route('/:id/shipping').put(verifyRoles(ROLES_LIST.Editor, ROLES_LIST.Admin),ordersController.updateOrderShipping); // Update Shipping method
 router.route('/:id/pay').put(ordersController.updateOrderPaid); // Mark Order as Paid
 
 export = router;
