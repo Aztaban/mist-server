@@ -69,7 +69,10 @@ const createNewOrder = async (
       shippingPrice: number;
     } = req.body;
 
-    const itemsPrice = products.reduce((total, item) => total + item.price * item.quantity, 0);
+    const itemsPrice = products.reduce(
+      (total, item) => total + item.price * item.quantity,
+      0
+    );
     const totalPrice = itemsPrice + shippingPrice;
 
     const foundUser: User | null = await UserModel.findOne({ username });
@@ -81,8 +84,15 @@ const createNewOrder = async (
     }
 
     // products and address validation
-    if (!products || products.length === 0 || !shippingAddress || !shippingMethod) {
-      res.status(400).json({ error: 'Products and shipping address are required' });
+    if (
+      !products ||
+      products.length === 0 ||
+      !shippingAddress ||
+      !shippingMethod
+    ) {
+      res
+        .status(400)
+        .json({ error: 'Products and shipping address are required' });
       return;
     }
 
@@ -100,7 +110,7 @@ const createNewOrder = async (
       created_at: new Date(),
     });
 
-    console.log(newOrder)
+    console.log(newOrder);
 
     const order: Order = await newOrder.save();
 
@@ -205,6 +215,45 @@ const updateOrderStatus = async (
   }
 };
 
+// @desc Update order shipping method by ID
+// @route PUT /orders/:id/shipping
+// @access Private
+const updateOrderShipping = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const orderId = req.params.id;
+  if (!orderId) {
+    res.status(400).json({ message: `Order ID required` });
+    return;
+  }
+
+  try {
+    const { shippingMethod }: { shippingMethod: ShippingMethod } = req.body;
+
+    if (!shippingMethod) {
+      res.status(400).json({ message: `Shipping methold field is required` });
+      return;
+    }
+
+    const updatedOrder: Order | null = await OrderModel.findByIdAndUpdate(
+      orderId,
+      { $set: { shippingMethod } },
+      { new: true }
+    ).exec();
+
+    if (!updatedOrder) {
+      res.status(404).json({ message: `No Order found with ID ${orderId}` });
+      return;
+    }
+
+    res.json({ message: 'Order shipping method updated successfully' });
+  } catch (error) {
+    console.error('Error updating order shipping method:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
 // @desc Update pay status by ID
 // @route PUT /orders/:id/pay
 // @access Private
@@ -285,6 +334,7 @@ const ordersController = {
   updateOrder,
   updateOrderStatus,
   updateOrderPaid,
+  updateOrderShipping,
   getOrdersForUser,
 };
 
