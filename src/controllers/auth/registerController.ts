@@ -15,6 +15,7 @@ const handleNewUser = async (req: Request, res: Response): Promise<void> => {
   }).exec();
   if (duplicate) {
     res.sendStatus(409); //Conflict
+    return;
   }
 
   try {
