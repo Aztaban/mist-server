@@ -21,6 +21,19 @@ const postSchema: Schema = new Schema({
   },
 })
 
+postSchema.virtual('id').get(function (this: Document) {
+  return this._id.toHexString();
+});
+
+// Set toJSON options to include virtuals and remove _id and __v
+postSchema.set('toJSON', {
+  virtuals: true,
+  versionKey: false, // Remove __v field
+  transform: (doc, ret) => {
+    delete ret._id; // Remove _id from the JSON output
+  },
+});
+
 const PostModel = mongoose.model<Post>('Post', postSchema)
 
 export default PostModel;
