@@ -36,6 +36,20 @@ const userSchema: Schema = new Schema(
   }
 );
 
+// Create a virtual field 'id' that maps to '_id'
+userSchema.virtual('id').get(function (this: Document) {
+  return this._id.toHexString();
+});
+
+// Set toJSON options to include virtuals and remove _id and __v
+userSchema.set('toJSON', {
+  virtuals: true,
+  versionKey: false, // Remove __v field
+  transform: (doc, ret) => {
+    delete ret._id; // Remove _id from the JSON output
+  },
+});
+
 const UserModel = mongoose.model<User>('User', userSchema);
 
 export default UserModel;
