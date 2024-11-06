@@ -29,6 +29,14 @@ const orderItemSchema: Schema = new Schema({
   },
 });
 
+// Set toJSON options for orderItemSchema to exclude _id
+orderItemSchema.set('toJSON', {
+  versionKey: false,
+  transform: (doc, ret) => {
+    delete ret._id;
+  },
+});
+
 export interface ShippingAddress {
   address: string;
   city: string;
@@ -128,7 +136,7 @@ const orderSchema: Schema = new Schema(
 orderSchema.pre<Order>(['find', 'findOne'], function (next) {
   this.populate({
     path: 'user',
-    select: 'username _id',
+    select: 'username id',
   });
 /*   this.populate({
     path: 'products.product',
@@ -136,6 +144,19 @@ orderSchema.pre<Order>(['find', 'findOne'], function (next) {
     select: 'name image',
   }); */
   next();
+});
+
+orderSchema.virtual('id').get(function (this: Document) {
+  return this._id.toHexString();
+});
+
+// Set toJSON options to include virtuals and remove _id and __v
+orderSchema.set('toJSON', {
+  virtuals: true,
+  versionKey: false, // Remove __v field
+  transform: (doc, ret) => {
+    delete ret._id; // Remove _id from the JSON output
+  },
 });
 
 const OrderModel = mongoose.model<Order>('Order', orderSchema);
