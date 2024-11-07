@@ -32,7 +32,7 @@ const productSchema: Schema = new Schema({
   },
   countInStock: {
     type: Number,
-    required: true,
+    default: 0,
   },
   details: {
     author: {
