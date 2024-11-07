@@ -8,7 +8,7 @@ const router: Router = express.Router();
 router
   .route('/')
   .get(productsController.getAllProducts)
-  .post(productsController.createNewProduct)
+  .post(verifyRoles(ROLES_LIST.Admin),productsController.createNewProduct)
   .delete(verifyRoles(ROLES_LIST.Admin), productsController.deleteProduct);
 
 router
