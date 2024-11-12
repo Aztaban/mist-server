@@ -6,6 +6,7 @@ export interface Product extends Document {
   price: number;
   image: string;
   countInStock: number;
+  unitsSold: number;
   details: {
     author: string;
     releaseDate: string;
@@ -31,6 +32,10 @@ const productSchema: Schema = new Schema({
     required: true,
   },
   countInStock: {
+    type: Number,
+    default: 0,
+  },
+  unitsSold: {
     type: Number,
     default: 0,
   },
