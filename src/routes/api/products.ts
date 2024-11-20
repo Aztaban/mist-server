@@ -20,6 +20,6 @@ router
     productsController.updateProduct
   );
 
-router.post('/imageUpload', uploadMiddleware, uploadFile)
+router.route('/imageUpload').post(uploadMiddleware, uploadFile)
 
 export = router;
