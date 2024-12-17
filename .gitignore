@@ -1,5 +1,4 @@
 node_modules
 .VSCodeCounter
-src/logs/reqLog.log
-src/logs/errLog.log
-src/logs/mongoErrLog.log
+src/logs
+.env
