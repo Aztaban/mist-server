@@ -6,6 +6,7 @@ import { generateOrderNumber } from '../utils/orderNumberGenerator';
 import { AuthRequest } from '../middleware/verifyJWT';
 import { User } from '../model/User';
 import { ShippingMethod } from '../config/shippingMethod';
+import { calculateItemsPrice, calculateShippingPrice } from '../utils/utils';
 
 // @desc Get all orders
 // @route GET /orders
@@ -61,18 +62,14 @@ const createNewOrder = async (
       products,
       shippingAddress,
       shippingMethod,
-      shippingPrice,
     }: {
       products: OrderItem[];
       shippingAddress: ShippingAddress;
       shippingMethod: ShippingMethod;
-      shippingPrice: number;
     } = req.body;
 
-    const itemsPrice = products.reduce(
-      (total, item) => total + item.price * item.quantity,
-      0
-    );
+    const itemsPrice = calculateItemsPrice(products);
+    const shippingPrice = calculateShippingPrice(shippingMethod);
     const totalPrice = itemsPrice + shippingPrice;
 
     const foundUser: User | null = await UserModel.findOne({ username });
@@ -255,7 +252,7 @@ const updateOrderShipping = async (
 };
 
 // @desc Update pay status by ID
-// @route PUT /orders/:id/pay
+// @route PUT /orders/:id/mark-paid
 // @access Private
 const updateOrderPaid = async (req: Request, res: Response): Promise<void> => {
   const orderId = req.params.id;
