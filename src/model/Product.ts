@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, ObjectId } from 'mongoose';
 
 export interface Product extends Document {
   name: string;
@@ -56,7 +56,7 @@ const productSchema: Schema = new Schema({
 
 // Create a virtual field 'id' that maps to '_id'
 productSchema.virtual('id').get(function (this: Document) {
-  return this._id.toHexString();
+  return this._id as ObjectId;
 });
 
 // Set toJSON options to include virtuals and remove _id and __v

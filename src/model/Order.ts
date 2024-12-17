@@ -147,7 +147,7 @@ orderSchema.pre<Order>(['find', 'findOne'], function (next) {
 });
 
 orderSchema.virtual('id').get(function (this: Document) {
-  return this._id.toHexString();
+  return this._id as Types.ObjectId;
 });
 
 // Set toJSON options to include virtuals and remove _id and __v

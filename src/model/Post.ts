@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, ObjectId } from 'mongoose';
 
 export interface Post extends Document {
   title: string;
@@ -22,7 +22,7 @@ const postSchema: Schema = new Schema({
 })
 
 postSchema.virtual('id').get(function (this: Document) {
-  return this._id.toHexString();
+  return this._id as ObjectId;
 });
 
 // Set toJSON options to include virtuals and remove _id and __v
