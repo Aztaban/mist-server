@@ -104,10 +104,7 @@ const createNewOrder = async (
       shippingPrice,
       totalPrice,
       isPaid: false,
-      created_at: new Date(),
     });
-
-    console.log(newOrder);
 
     const order: Order = await newOrder.save();
 
@@ -264,7 +261,13 @@ const updateOrderPaid = async (req: Request, res: Response): Promise<void> => {
   try {
     const updatedOrder: Order | null = await OrderModel.findByIdAndUpdate(
       orderId,
-      { $set: { isPaid: true } },
+      {
+        $set: {
+          status: OrderStatus.PROCESSING,
+          isPaid: true,
+          paidAt: new Date(),
+        },
+      },
       { new: true }
     ).exec();
 
