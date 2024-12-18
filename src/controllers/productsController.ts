@@ -73,7 +73,6 @@ const updateProduct = async (req: Request, res: Response): Promise<void> => {
       productId,
       updatedProductData
     ).exec();
-    console.log(updatedProduct);
 
     // Check if the product was updated successfully
     if (!updatedProduct) {

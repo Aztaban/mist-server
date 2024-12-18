@@ -5,7 +5,7 @@ export enum ShippingMethod {
 }
 
 export const ShippingPrices: Record<ShippingMethod, number> = {
-  [ShippingMethod.Standard]: 5,
-  [ShippingMethod.Express]: 15,
-  [ShippingMethod.Overnight]: 25,
+  [ShippingMethod.Standard]: 500,
+  [ShippingMethod.Express]: 1500,
+  [ShippingMethod.Overnight]: 2500,
 }
