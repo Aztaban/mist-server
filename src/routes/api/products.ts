@@ -2,7 +2,10 @@ import express, { Router } from 'express';
 import verifyRoles from '../../middleware/verifyRoles';
 import { ROLES_LIST } from '../../config/roles_list';
 import productsController from '../../controllers/productsController';
-import { uploadFile, uploadMiddleware } from '../../controllers/uploadController';
+import {
+  uploadFile,
+  uploadMiddleware,
+} from '../../controllers/uploadController';
 import verifyJWT from '../../middleware/verifyJWT';
 
 const router: Router = express.Router();
@@ -10,7 +13,11 @@ const router: Router = express.Router();
 router
   .route('/')
   .get(productsController.getAllProducts)
-  .post(verifyJWT, verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor),productsController.createNewProduct)
+  .post(
+    verifyJWT,
+    verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor),
+    productsController.createNewProduct
+  )
   .delete(verifyRoles(ROLES_LIST.Admin), productsController.deleteProduct);
 
 router
@@ -21,6 +28,12 @@ router
     productsController.updateProduct
   );
 
-router.route('/imageUpload').post(uploadMiddleware, uploadFile)
+router
+  .route('/imageUpload')
+  .post(
+    verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor),
+    uploadMiddleware,
+    uploadFile
+  );
 
 export = router;
