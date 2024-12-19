@@ -1,16 +1,16 @@
 {
   "name": "mist-server",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "0.5.2",
+  "description": "A backend service for an eCommerce platform built with Express and TypeScript, supporting features such as user authentication, product management, orders, and payment processing.",
+  "main": "src/index.ts",
   "scripts": {
     "build": "npx tsc",
     "start": "node public/server.js",
     "dev": "ts-node-dev src/server.ts"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Martin Justa",
+  "license": "MIT",
   "dependencies": {
     "@types/jsonwebtoken": "^9.0.6",
     "@types/multer": "^1.4.12",
