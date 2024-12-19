@@ -1,4 +1,4 @@
-import OrderModel, { Order } from '../model/Order';
+import OrderModel, { Order } from '../models/Order';
 
 let orderSequence = 1;
 

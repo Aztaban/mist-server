@@ -1,4 +1,4 @@
-import UserModel, { User } from '../../model/User';
+import UserModel, { User } from '../../models/User';
 import { Request, Response } from 'express';
 
 const handleLogout = async (req: Request, res: Response): Promise<void> => {

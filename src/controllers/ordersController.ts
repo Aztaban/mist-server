@@ -1,10 +1,10 @@
-import OrderModel, { Order, OrderItem, ShippingAddress } from '../model/Order';
+import OrderModel, { Order, OrderItem, ShippingAddress } from '../models/Order';
 import { Request, Response } from 'express';
-import UserModel from '../model/User';
+import UserModel from '../models/User';
 import { OrderStatus } from '../config/orderStatus';
 import { generateOrderNumber } from '../utils/orderNumberGenerator';
 import { AuthRequest } from '../middleware/verifyJWT';
-import { User } from '../model/User';
+import { User } from '../models/User';
 import { ShippingMethod } from '../config/shippingMethod';
 import { calculateItemsPrice, calculateShippingPrice } from '../utils/utils';
 

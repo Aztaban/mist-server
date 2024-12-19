@@ -1,4 +1,4 @@
-import PostModel, { Post} from '../model/Post';
+import PostModel, { Post} from '../models/Post';
 import { Request, Response } from 'express';
 
 interface PostRequest extends Request {

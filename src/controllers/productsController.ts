@@ -1,4 +1,4 @@
-import ProductModel, { Product } from '../model/Product';
+import ProductModel, { Product } from '../models/Product';
 import { Request, Response } from 'express';
 
 interface ProductRequest extends Request {

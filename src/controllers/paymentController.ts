@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/verifyJWT';
 import Stripe from 'stripe';
-import OrderModel from '../model/Order';
+import OrderModel from '../models/Order';
 
 const stripe = new Stripe(process.env.STRIPE_API_SECRET!);
 

@@ -1,4 +1,4 @@
-import UserModel, { User } from '../../model/User';
+import UserModel, { User } from '../../models/User';
 import { Request, Response } from 'express';
 import jwt, { Secret } from 'jsonwebtoken';
 import { AccessTokenPayload } from './authController';

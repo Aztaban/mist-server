@@ -1,4 +1,4 @@
-import { OrderItem } from "../model/Order";
+import { OrderItem } from "../models/Order";
 import { ShippingMethod, ShippingPrices} from "../config/shippingMethod";
 
 export const calculateItemsPrice = (cart: OrderItem[]): number => {
