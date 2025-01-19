@@ -1,7 +1,8 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { singleFileUpload } from '../utils/upload';
+import { AuthRequest } from '../middleware/verifyJWT';
 
-const uploadFile = (req: Request, res: Response) => {
+const uploadFile = (req: AuthRequest, res: Response) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No File Uploaded' });
   }

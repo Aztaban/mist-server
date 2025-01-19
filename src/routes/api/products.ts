@@ -31,6 +31,7 @@ router
 router
   .route('/imageUpload')
   .post(
+    verifyJWT,
     verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor),
     uploadMiddleware,
     uploadFile
