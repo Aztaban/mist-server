@@ -1,4 +1,4 @@
-# eCommerce Backend
+# Mist Server
 
 This is the backend for the Mist Gate eCommerce project, called **Mist Server**. It is a practice project to gain experience and improve skills in backend development. Built using **TypeScript** and **Express**, it provides robust APIs for managing users, products, orders, authentication, and more. Mist Server is designed for scalability, security, and ease of use.
 
