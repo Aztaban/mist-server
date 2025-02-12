@@ -68,6 +68,17 @@ const updateProduct = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    // Handle countInStock update as a change value
+    if (updatedProductData.countInStock !== undefined) {
+      const newStockValue =
+        existingProduct.countInStock + updatedProductData.countInStock;
+      if (newStockValue < 0) {
+        res.status(400).json({ message: 'Stock cannot be negative' });
+        return;
+      }
+      updatedProductData.countInStock = newStockValue;
+    }
+
     // Update product
     const updatedProduct: Product | null = await ProductModel.findByIdAndUpdate(
       productId,
