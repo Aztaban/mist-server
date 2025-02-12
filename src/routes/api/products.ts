@@ -23,7 +23,8 @@ router
 router
   .route('/:id')
   .get(productsController.getProduct)
-  .put(
+  .patch(
+    verifyJWT,
     verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor),
     productsController.updateProduct
   );
