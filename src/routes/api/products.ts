@@ -3,7 +3,8 @@ import verifyRoles from '../../middleware/verifyRoles';
 import { ROLES_LIST } from '../../config/roles_list';
 import productsController from '../../controllers/productsController';
 import {
-  uploadFile,
+  uploadImage,
+  updateProductImage,
   uploadMiddleware,
 } from '../../controllers/uploadController';
 import verifyJWT from '../../middleware/verifyJWT';
@@ -35,7 +36,16 @@ router
     verifyJWT,
     verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor),
     uploadMiddleware,
-    uploadFile
+    uploadImage
+  );
+
+router
+  .route('/:id/image')
+  .put(
+    verifyJWT,
+    verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor),
+    uploadMiddleware,
+    updateProductImage
   );
 
 export = router;
