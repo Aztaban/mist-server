@@ -1,21 +1,24 @@
-import { Response, NextFunction } from "express"
-import { AuthRequest } from "./verifyJWT"
+import { Response, NextFunction, Request } from 'express';
+import { AuthRequest } from './verifyJWT';
 
 const verifyRoles = (...allowedRoles: number[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction) => {
-    if (!req?.roles) {
-      res.sendStatus(401);
-      return;
+    if (!req.roles) {
+      return res.status(401).json({ message: 'Unauthorized: No roles found.' });
     }
-    const rolesArray: number[] = [...allowedRoles];
-    const result: boolean = req.roles.some(role => rolesArray.includes(role));
-    if (!result ) {
-      res.sendStatus(403); // Forbidden if the user doesn't have the required roles
-      return;
+
+    const result: boolean = req.roles.some((role) =>
+      allowedRoles.includes(role)
+    );
+
+    if (!result) {
+      return res
+        .status(403)
+        .json({ message: 'Forbidden: You do not have the required role(s).' });
     }
 
     next();
-  }
-}
+  };
+};
 
 export default verifyRoles;
