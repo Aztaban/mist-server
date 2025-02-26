@@ -1,7 +1,7 @@
 import express, { Router } from 'express';
 import verifyRoles from '../../middleware/verifyRoles';
 import { ROLES_LIST } from '../../config/roles_list';
-import postsController from '../../controllers/postsController';
+import postsController from '../../controllers/posts/postsController';
 import verifyJWT from '../../middleware/verifyJWT';
 
 const router: Router = express.Router();
