@@ -1,24 +1,25 @@
-import UserModel, { User } from '../../models/User';
 import { Request, Response } from 'express';
 import jwt, { Secret } from 'jsonwebtoken';
-import { AccessTokenPayload } from './authController';
-
-
-const handleRefreshToken = async (
+import {
+  AccessTokenPayload,
+  generateAccessToken,
+} from '../../services/authServices';
+import { findUserByRefreshToken } from '../../services/userServices';
+export const handleRefreshToken = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   const refreshToken: string = req.cookies?.jwt;
 
   if (!refreshToken) {
-    res.status(401).json({ message: 'Refresh token not found. Please log in again.' });;
+    res
+      .status(401)
+      .json({ message: 'Refresh token not found. Please log in again.' });
     return;
   }
 
   try {
-    const foundUser: User | null = await UserModel.findOne({
-      refreshToken,
-    }).exec();
+    const foundUser = await findUserByRefreshToken(refreshToken);
     if (!foundUser) {
       res.status(401).json({ message: 'Forbidden: Invalid refresh token.' });
       return;
@@ -29,23 +30,18 @@ const handleRefreshToken = async (
       process.env.REFRESH_TOKEN_SECRET as Secret,
       (err: any, decoded: any) => {
         if (err || foundUser.username !== decoded.username) {
-          res.status(401).json({ message: 'Forbidden: Invalid refresh token.' });
+          res
+            .status(401)
+            .json({ message: 'Forbidden: Invalid refresh token.' });
           return;
         }
 
-        const roles: number[] = Object.values(foundUser.roles);
+        const roles: number[] = foundUser.roles || [];
         const accessTokenPayload: AccessTokenPayload = {
-          UserInfo: {
-            username: decoded.username,
-            roles: roles,
-          },
+          UserInfo: { username: decoded.username, roles: roles },
         };
 
-        const accessToken = jwt.sign(
-          accessTokenPayload,
-          process.env.ACCESS_TOKEN_SECRET as Secret,
-          { expiresIn: '15m' }
-        );
+        const accessToken = generateAccessToken(accessTokenPayload);
         res.json({ accessToken });
       }
     );
@@ -54,5 +50,3 @@ const handleRefreshToken = async (
     res.sendStatus(500);
   }
 };
-
-export { handleRefreshToken };
