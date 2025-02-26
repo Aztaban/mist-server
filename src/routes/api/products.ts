@@ -1,7 +1,7 @@
 import express, { Router } from 'express';
 import verifyRoles from '../../middleware/verifyRoles';
 import { ROLES_LIST } from '../../config/roles_list';
-import productsController from '../../controllers/productsController';
+import * as productsController from '../../controllers/products';
 import {
   uploadImage,
   updateProductImage,
