@@ -1,12 +1,9 @@
 import mongoose, { Schema, Document, ObjectId } from 'mongoose';
+import { ROLES_LIST } from '../config/roles_list';
 
 export interface User extends Document {
   username: string;
-  roles: {
-    User: number;
-    Editor?: number;
-    Admin?: number;
-  };
+  roles: number[];
   password: string;
   refreshToken?: string;
 }
@@ -18,12 +15,8 @@ const userSchema: Schema = new Schema(
       required: true,
     },
     roles: {
-      User: {
-        type: Number,
-        default: 1012,
-      },
-      Editor: Number,
-      Admin: Number,
+      type: [Number],
+      default: [ROLES_LIST.User],
     },
     password: {
       type: String,
