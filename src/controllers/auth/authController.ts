@@ -26,15 +26,14 @@ const handleLogin = async (req: Request, res: Response): Promise<void> => {
     if (foundUser) {
       const match = await bcrypt.compare(pwd, foundUser.password);
       if (match) {
-        const roles: number[] = Object.values(foundUser.roles).filter(Boolean);
+        const roles: number[] = foundUser.roles || [];
         const accessTokenPayload: AccessTokenPayload = {
           UserInfo: {
             username: foundUser.username,
-            roles: roles,
+            roles: foundUser.roles,
           },
         };
-
-        const isAdmin = roles.includes(ROLES_LIST.Admin)
+        const isAdmin = roles.some(role => [ROLES_LIST.Admin, ROLES_LIST.Editor].includes(role));
 
         const accessToken: string = jwt.sign(
           accessTokenPayload,
