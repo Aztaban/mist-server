@@ -1,9 +1,9 @@
 import { Response } from 'express';
 import fs from 'fs';
 import path from 'path';
-import { singleFileUpload } from '../utils/upload';
-import { AuthRequest } from '../middleware/verifyJWT';
-import ProductModel from '../models/Product';
+import { singleFileUpload } from '../../utils/upload';
+import { AuthRequest } from '../../middleware/verifyJWT';
+import ProductModel from '../../models/Product';
 
 const uploadImage = async (req: AuthRequest, res: Response) => {
   if (!req.file) {

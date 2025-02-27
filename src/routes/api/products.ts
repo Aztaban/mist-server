@@ -6,7 +6,7 @@ import {
   uploadImage,
   updateProductImage,
   uploadMiddleware,
-} from '../../controllers/uploadController';
+} from '../../controllers/upload/uploadController';
 import verifyJWT from '../../middleware/verifyJWT';
 
 const router: Router = express.Router();
