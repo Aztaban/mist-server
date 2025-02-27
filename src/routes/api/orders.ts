@@ -20,10 +20,7 @@ router
 
 router
   .route('/:id')
-  .get(
-    verifyRoles(ROLES_LIST.User, ROLES_LIST.Editor, ROLES_LIST.Admin),
-    ordersController.getOrderById
-  )
+  .get(ordersController.getOrderById)
   .put(
     verifyRoles(ROLES_LIST.Editor, ROLES_LIST.Admin),
     ordersController.updateOrder
