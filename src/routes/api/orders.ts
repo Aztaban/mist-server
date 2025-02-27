@@ -1,7 +1,7 @@
 import express, { Router } from 'express';
 import verifyRoles from '../../middleware/verifyRoles';
 import * as ordersController from '../../controllers/orders';
-import { createPaymentIntent } from '../../controllers/paymentController';
+import { createPaymentIntent } from '../../controllers/payment/paymentController';
 import { ROLES_LIST } from '../../config/roles_list';
 
 const router: Router = express.Router();
