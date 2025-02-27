@@ -3,9 +3,8 @@ import verifyRoles from '../../middleware/verifyRoles';
 import { ROLES_LIST } from '../../config/roles_list';
 import * as productsController from '../../controllers/products';
 import {
-  uploadImage,
-  updateProductImage,
-  uploadMiddleware,
+  handleImageUpload,
+  handleProductImageUpdate,
 } from '../../controllers/upload/uploadController';
 import verifyJWT from '../../middleware/verifyJWT';
 
@@ -35,8 +34,7 @@ router
   .post(
     verifyJWT,
     verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor),
-    uploadMiddleware,
-    uploadImage
+    handleImageUpload
   );
 
 router
@@ -44,8 +42,7 @@ router
   .put(
     verifyJWT,
     verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor),
-    uploadMiddleware,
-    updateProductImage
+    handleProductImageUpdate
   );
 
 export = router;
