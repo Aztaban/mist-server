@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { OrderItem } from '../models/Order';
 import ProductModel from '../models/Product';
-import { ShippingAddress } from '../models/Order';
+import { Address } from '../models/User';
 import { ShippingMethod } from '../config/shippingMethod';
 
 /**
@@ -32,7 +32,7 @@ export const validateOrderDataMiddleware = async (
   try {
     const { products, shippingAddress, shippingMethod } = req.body as {
       products: OrderItem[];
-      shippingAddress: ShippingAddress; 
+      shippingAddress: Address; 
       shippingMethod: ShippingMethod; 
     };
 

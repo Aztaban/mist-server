@@ -1,5 +1,6 @@
 import { startSession } from 'mongoose';
-import OrderModel, { Order, OrderItem, ShippingAddress } from '../models/Order';
+import OrderModel, { Order, OrderItem } from '../models/Order';
+import { Address } from '../models/User';
 import ProductModel from '../models/Product';
 import { ShippingMethod } from '../config/shippingMethod';
 import { generateOrderNumber } from '../utils/orderNumberGenerator';
@@ -78,7 +79,7 @@ export const getOrdersForUserService = async (
 export const createOrder = async (
   user: Types.ObjectId,
   products: OrderItem[],
-  shippingAddress: ShippingAddress,
+  shippingAddress: Address,
   shippingMethod: ShippingMethod
 ): Promise<Order> => {
   const session = await startSession();

@@ -1,7 +1,8 @@
 import { Response, Request } from 'express';
 import { AuthRequest } from '../../middleware/verifyJWT';
 import { createOrder } from '../../services/orderServices';
-import { OrderItem, ShippingAddress } from '../../models/Order';
+import { OrderItem } from '../../models/Order';
+import { Address } from '../../models/User';
 import { ShippingMethod } from '../../config/shippingMethod';
 
 /**
@@ -23,7 +24,7 @@ export const createNewOrder = async (
   try {
     const {products, shippingAddress, shippingMethod } = req.body as {
       products: OrderItem[];
-      shippingAddress: ShippingAddress;
+      shippingAddress: Address;
       shippingMethod: ShippingMethod;
     };
 
