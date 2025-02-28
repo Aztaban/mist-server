@@ -5,10 +5,11 @@ import { ROLES_LIST } from '../../config/roles_list';
 
 const router: Router = express.Router();
 
-router
-  .route('/')
-  .get();
+router.route('/').get(userController.getUser);
 
 router.route('/address').put(userController.updateUserAddressAndPhone);
+router
+  .route('/admin')
+  .get(verifyRoles(ROLES_LIST.Admin), userController.getAllUsers);
 
 export = router;
