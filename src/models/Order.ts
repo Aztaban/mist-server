@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 import { OrderStatus } from '../config/orderStatus';
 import { ShippingMethod } from '../config/shippingMethod';
+import { Address, AddressSchema } from './User';
 
 export interface OrderItem {
   product: Types.ObjectId; // Reference to Product
@@ -37,25 +38,11 @@ orderItemSchema.set('toJSON', {
   },
 });
 
-export interface ShippingAddress {
-  address: string;
-  city: string;
-  postalCode: string;
-  country: string;
-}
-
-const shippingAddressSchema: Schema = new Schema({
-  address: { type: String, required: true },
-  city: { type: String, required: true },
-  postalCode: { type: String, required: true },
-  country: { type: String, required: true },
-});
-
 export interface Order extends Document {
   orderNo: number;
   user: Types.ObjectId; // Reference to User
   products: OrderItem[];
-  shippingAdress: ShippingAddress;
+  shippingAdress: Address;
   status: OrderStatus;
   shippingMethod: ShippingMethod;
   itemsPrice: number;
@@ -82,7 +69,7 @@ const orderSchema: Schema = new Schema(
     },
     products: [orderItemSchema],
     shippingAddress: {
-      type: shippingAddressSchema,
+      type: AddressSchema,
       required: true,
     },
     status: {

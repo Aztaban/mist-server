@@ -1,5 +1,6 @@
 import { startSession } from 'mongoose';
-import OrderModel, { Order, OrderItem, ShippingAddress } from '../models/Order';
+import OrderModel, { Order, OrderItem } from '../models/Order';
+import { Address } from '../models/User';
 import ProductModel from '../models/Product';
 import { ShippingMethod } from '../config/shippingMethod';
 import { generateOrderNumber } from '../utils/orderNumberGenerator';
@@ -42,7 +43,7 @@ export const getOrderByIdService = async (
     requesterRoles.includes(ROLES_LIST.Editor);
 
   // If not admin/editor, ensure the order belongs to the requester.
-  if (!isAdminOrEditor && order.user.toString() !== requesterId.toString()) {
+  if (!isAdminOrEditor && order.user.id.toString() !== requesterId.toString()) {
     throw new Error('Forbidden: You do not have access to this order.');
   }
 
@@ -78,7 +79,7 @@ export const getOrdersForUserService = async (
 export const createOrder = async (
   user: Types.ObjectId,
   products: OrderItem[],
-  shippingAddress: ShippingAddress,
+  shippingAddress: Address,
   shippingMethod: ShippingMethod
 ): Promise<Order> => {
   const session = await startSession();
@@ -176,7 +177,9 @@ export const updateOrderService = async (
  *
  * @throws {Error} Throws an error if the update operation fails.
  */
-export const updateOrderPaidService = async (orderId: string): Promise<Order | null> => {
+export const updateOrderPaidService = async (
+  orderId: string
+): Promise<Order | null> => {
   return await OrderModel.findByIdAndUpdate(
     orderId,
     {
