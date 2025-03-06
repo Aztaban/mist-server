@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { findUserByUsername, updateUserRefreshToken } from '../../services/userServices';
+import { findUserByUsername, updateUserRefreshToken, findUserByEmail } from '../../services/userServices';
 import { validatePassword, generateAccessToken, generateRefreshToken } from '../../services/authServices';
 import { AccessTokenPayload } from '../../services/authServices';
 import { ROLES_LIST } from '../../config/roles_list';
@@ -8,14 +8,21 @@ export const handleLogin = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { user, pwd } = req.body;
-  if (!user || !pwd) {
-    res.status(400).json({ message: 'Username and password are required.' });
+  const { user, email, pwd } = req.body;
+
+  if ((!user && !email) || !pwd) {
+    res.status(400).json({ message: 'Email or username and password are required.' });
     return;
   }
 
   try {
-    const foundUser = await findUserByUsername(user);
+    let foundUser = null;
+    if (email) {
+      foundUser = await findUserByEmail(email);
+    } else if (user) {
+      foundUser = await findUserByUsername(user);
+    }
+
     if (!foundUser) {
       res.status(401).json({ message: 'Unauthorized: User not found.' });
       return;
