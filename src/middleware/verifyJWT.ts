@@ -4,7 +4,7 @@ import { Types } from 'mongoose';
 import UserModel from '../models/User';
 
 export interface AuthRequest extends Request {
-  user?: Types.ObjectId;
+  user?: string;
   roles?: number[];
 }
 
@@ -31,7 +31,7 @@ const verifyJWT = (req: AuthRequest, res: Response, next: NextFunction) => {
         return res.sendStatus(404).json({ message: 'User not found' });
       }
       // Attach the user ObjectId and roles to the request
-      req.user = user.id;
+      req.user = user.id.toString();
       req.roles = user.roles;
       next();
     } catch (error) {

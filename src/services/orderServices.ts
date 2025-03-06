@@ -32,7 +32,7 @@ export const getAllOrdersService = async (): Promise<Order[]> => {
  */
 export const getOrderByIdService = async (
   orderId: string,
-  requesterId: Types.ObjectId,
+  requesterId: string,
   requesterRoles: number[]
 ): Promise<Order | null> => {
   const order: Order | null = await OrderModel.findById(orderId).exec();
@@ -58,7 +58,7 @@ export const getOrderByIdService = async (
  * @returns {Promise<Order[]>} A promise that resolves to an array of orders belonging to the given user.
  */
 export const getOrdersForUserService = async (
-  userId: Types.ObjectId
+  userId: string
 ): Promise<Order[]> => {
   const userOrders: Order[] = await OrderModel.find({ user: userId }).exec();
   return userOrders;
@@ -77,7 +77,7 @@ export const getOrdersForUserService = async (
  * @throws {Error} Throws an error if order creation or stock update fails.
  */
 export const createOrder = async (
-  user: Types.ObjectId,
+  user: String,
   products: OrderItem[],
   shippingAddress: Address,
   shippingMethod: ShippingMethod

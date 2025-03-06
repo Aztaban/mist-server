@@ -1,7 +1,6 @@
 import { Response } from "express";
 import { AuthRequest } from "../../middleware/verifyJWT";
 import { findUserById, findAllUsers } from "../../services/userServices";
-import { Types } from "mongoose";
 
 export const getUser = async (req: AuthRequest, res: Response): Promise<void> => {
   const userId = req.user;
@@ -12,7 +11,7 @@ export const getUser = async (req: AuthRequest, res: Response): Promise<void> =>
   }
 
   try {
-    const user = await findUserById(userId.toString());
+    const user = await findUserById(userId);
     if (!user) {
       res.status(404).json({ message: 'User not found' });
       return;

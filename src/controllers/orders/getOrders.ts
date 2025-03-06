@@ -6,7 +6,6 @@ import {
   getOrdersForUserService,
   getOrderByIdService,
 } from '../../services/orderServices';
-import { Types } from 'mongoose';
 
 /**
  * Retrieves all orders from the database.
