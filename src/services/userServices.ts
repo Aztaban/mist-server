@@ -65,11 +65,21 @@ export const updateUserContactInfo = async (
   return await user.save();
 };
 
-export const updateUserStatus = async (id: string, isActive: boolean) => {
+export const updateUserStatusService = async (id: string, isActive: boolean) => {
   return await UserModel.findByIdAndUpdate(id, { isActive }, { new: true });
 };
 
-export const toggleEditorRole = async (id: string) => {
+export const toggleUserStatusService = async (id: string) => {
+  const user = await UserModel.findById(id);
+  if (!user) return null;
+
+  // 🟢 Toggle isActive status
+  user.isActive = !user.isActive;
+  await user.save();
+  return user;
+};
+
+export const toggleEditorRoleService = async (id: string) => {
   const user = await UserModel.findById(id);
   if (!user) return null;
 

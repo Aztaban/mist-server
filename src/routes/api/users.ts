@@ -11,5 +11,7 @@ router.route('/address').put(userController.updateUserAddressAndPhone);
 router
   .route('/admin')
   .get(verifyRoles(ROLES_LIST.Admin), userController.getAllUsers);
+router.route('/:id').patch(verifyRoles(ROLES_LIST.Admin), userController.toggleUserStatus);
 
+ 
 export = router;
