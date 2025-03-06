@@ -1,6 +1,6 @@
 import { Response, Request } from 'express';
 import { AuthRequest } from '../../middleware/verifyJWT';
-import { createOrder } from '../../services/orderServices';
+import { createOrderService } from '../../services/orderServices';
 import { OrderItem } from '../../models/Order';
 import { Address } from '../../models/User';
 import { ShippingMethod } from '../../config/shippingMethod';
@@ -22,18 +22,19 @@ export const createNewOrder = async (
   res: Response
 ): Promise<void> => {
   try {
-    const {products, shippingAddress, shippingMethod } = req.body as {
+    const {products, shippingAddress, shippingMethod, phoneNumber } = req.body as {
       products: OrderItem[];
       shippingAddress: Address;
       shippingMethod: ShippingMethod;
+      phoneNumber?: string;
     };
 
-    if (!req.user) {
+    const user = req.user;
+
+    if (!user) {
       res.status(401).json({ error: 'Unauthorized: User not authenticated.' });
       return;
     }
-
-    const user = req.user;
 
     if (
       !products ||
@@ -47,11 +48,12 @@ export const createNewOrder = async (
       return;
     }
 
-    const order = await createOrder(
+    const order = await createOrderService(
       user,
       products,
       shippingAddress,
-      shippingMethod
+      shippingMethod,
+      phoneNumber
     );
     res.status(201).json(order._id);
   } catch (error: any) {

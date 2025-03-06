@@ -67,20 +67,22 @@ export const getOrdersForUserService = async (
 /**
  * Creates a new order and updates the stock for the ordered products.
  *
- * @param {Types.ObjectId} user - The ID of the user placing the order.
+ * @param {string} user - The ID of the user placing the order.
  * @param {OrderItem[]} products - An array of order items, each containing product details and quantity.
  * @param {ShippingAddress} shippingAddress - The shipping address for the order.
  * @param {ShippingMethod} shippingMethod - The method of shipping chosen for the order.
+ * @param {string} [phoneNumber] - Optional phone number for the order.
  *
  * @returns {Promise<Order>} A promise that resolves to the created order.
  *
  * @throws {Error} Throws an error if order creation or stock update fails.
  */
-export const createOrder = async (
+export const createOrderService = async (
   user: String,
   products: OrderItem[],
   shippingAddress: Address,
-  shippingMethod: ShippingMethod
+  shippingMethod: ShippingMethod,
+  phoneNumber?: string
 ): Promise<Order> => {
   const session = await startSession();
   session.startTransaction();
@@ -106,6 +108,7 @@ export const createOrder = async (
       user,
       products: products,
       shippingAddress,
+      phoneNumber,
       status: OrderStatus.PENDING,
       shippingMethod,
       itemsPrice,
