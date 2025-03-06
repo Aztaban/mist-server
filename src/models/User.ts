@@ -5,7 +5,6 @@ export interface Address {
   name: string;
   street: string;
   city: string;
-  state?: string;
   postalCode: string;
   country: string;
 }
@@ -14,7 +13,6 @@ export const AddressSchema = new Schema<Address>({
   name: { type: String, required: true },
   street: { type: String, required: true },
   city: { type: String, required: true },
-  state: { type: String },
   postalCode: { type: String, required: true },
   country: { type: String, required: true },
 });

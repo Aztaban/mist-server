@@ -45,6 +45,7 @@ export interface Order extends Document {
   shippingAdress: Address;
   status: OrderStatus;
   shippingMethod: ShippingMethod;
+  phoneNumber: string;
   itemsPrice: number;
   shippingPrice: number;
   totalPrice: number;
@@ -82,6 +83,7 @@ const orderSchema: Schema = new Schema(
       enum: Object.values(ShippingMethod),
       required: true,
     },
+    phoneNumber: { type: String, required: false },
     itemsPrice: {
       type: Number,
       required: true,
@@ -125,7 +127,7 @@ orderSchema.pre<Order>(['find', 'findOne'], function (next) {
     path: 'user',
     select: 'username id',
   });
-/*   this.populate({
+  /*   this.populate({
     path: 'products.product',
     model: 'Product',
     select: 'name image',
