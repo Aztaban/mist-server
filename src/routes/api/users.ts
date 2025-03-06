@@ -6,13 +6,12 @@ import { ROLES_LIST } from '../../config/roles_list';
 
 const router: Router = express.Router();
 
-router.route('/').get(userController.getUser);
+router.route('/').get(verifyRoles(ROLES_LIST.Admin),userController.getAllUsers);
+router.route('/user').get(userController.getUser);
+router.route('/user/orders').get(verifyRoles(ROLES_LIST.User),getOrdersForUser);
 
-router.route('/orders').get(getOrdersForUser);
-router.route('/address').put(userController.updateUserAddressAndPhone);
-router
-  .route('/admin')
-  .get(verifyRoles(ROLES_LIST.Admin), userController.getAllUsers);
+router.route('/:id').get(verifyRoles(ROLES_LIST.Admin), userController.getUserById);
+router.route('/:id/address').patch(userController.updateUserAddressAndPhone);
 router.route('/:id/toggle-status').patch(verifyRoles(ROLES_LIST.Admin), userController.toggleUserStatus);
 router.route('/:id/toggle-editor').patch(verifyRoles(ROLES_LIST.Admin), userController.toggleEditorRole);
 
