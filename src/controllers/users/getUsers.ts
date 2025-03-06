@@ -23,6 +23,27 @@ export const getUser = async (req: AuthRequest, res: Response): Promise<void> =>
   }
 }
 
+export const getUserById = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { id } = req.params;
+
+  if (!id) {
+    res.status(400).json({ message: 'User ID is required' });
+    return;
+  }
+
+  try {
+    const user = await findUserById(id);
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+    res.status(200).json(user);
+  } catch (error) {
+    console.error('Error getting user by ID:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
 export const getAllUsers = async (_req: AuthRequest, res: Response): Promise<void> => {
   try {
     const users = await findAllUsers();

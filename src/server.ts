@@ -53,7 +53,7 @@ app.use('/posts', require('./routes/api/posts'));
 app.use(verifyJWT);
 
 // verified routes
-app.use('/user', require('./routes/api/users'));
+app.use('/users', require('./routes/api/users'));
 app.use('/orders', require('./routes/api/orders'));
 
 // default route
