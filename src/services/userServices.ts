@@ -5,15 +5,15 @@ import { ROLES_LIST } from '../config/roles_list';
 export const findUserByUsername = async (
   username: string
 ): Promise<User | null> => {
-  return await UserModel.findOne({ username }).exec();
+  return await UserModel.findOne({ username }).select('-password -refreshToken').exec();
 };
 
 export const findUserById = async (id: string) => {
-  return await UserModel.findById(id).exec();
+  return await UserModel.findById(id).select('-password -refreshToken').exec();
 };
 
 export const findUserByEmail = async (email: string) => {
-  return await UserModel.findOne({ email }).exec();
+  return await UserModel.findOne({ email }).select('-password -refreshToken').exec();
 };
 
 export const findUserByRefreshToken = async (
@@ -70,17 +70,16 @@ export const updateUserStatusService = async (id: string, isActive: boolean) => 
 };
 
 export const toggleUserStatusService = async (id: string) => {
-  const user = await UserModel.findById(id);
+  const user = await UserModel.findById(id).select('-password -refreshToken');
   if (!user) return null;
 
-  // 🟢 Toggle isActive status
   user.isActive = !user.isActive;
   await user.save();
   return user;
 };
 
 export const toggleEditorRoleService = async (id: string) => {
-  const user = await UserModel.findById(id);
+  const user = await UserModel.findById(id).select('-password -refreshToken');
   if (!user) return null;
 
   const editorRole = ROLES_LIST.Editor;
@@ -96,5 +95,5 @@ export const toggleEditorRoleService = async (id: string) => {
 };
 
 export const findAllUsers = async (): Promise<User[]> => {
-  return await UserModel.find().select("-password").exec();
+  return await UserModel.find().select("-password -refreshToken").exec();
 };
