@@ -5,7 +5,7 @@ import { ROLES_LIST } from '../config/roles_list';
 export const findUserByUsername = async (
   username: string
 ): Promise<User | null> => {
-  return await UserModel.findOne({ username }).select('-password -refreshToken').exec();
+  return await UserModel.findOne({ username }).select('-refreshToken').exec();
 };
 
 export const findUserById = async (id: string) => {
@@ -13,7 +13,7 @@ export const findUserById = async (id: string) => {
 };
 
 export const findUserByEmail = async (email: string) => {
-  return await UserModel.findOne({ email }).select('-password -refreshToken').exec();
+  return await UserModel.findOne({ email }).select('-refreshToken').exec();
 };
 
 export const findUserByRefreshToken = async (
@@ -48,7 +48,7 @@ export const clearUserRefreshToken = async (user: User): Promise<User> => {
 };
 
 export const updateUserContactInfo = async (
-  userId: Types.ObjectId,
+  userId: string,
   address?: Address,
   phoneNumber?: string
 ): Promise<User> => {
