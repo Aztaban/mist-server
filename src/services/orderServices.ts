@@ -119,11 +119,11 @@ export const createOrderService = async (
 
     await newOrder.save({ session });
     await session.commitTransaction();
-    session.endSession();
+    await session.endSession();
     return newOrder;
   } catch (error) {
     await session.abortTransaction();
-    session.endSession();
+    await session.endSession();
     if (error instanceof Error) {
       throw new Error(
         `Failed to create order and update stock: ${error.message}`
