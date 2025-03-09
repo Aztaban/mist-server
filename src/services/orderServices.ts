@@ -93,15 +93,19 @@ export const createOrderService = async (
     const shippingPrice = calculateShippingPrice(shippingMethod);
     const totalPrice = itemsPrice + shippingPrice;
 
-    await Promise.all(
-      products.map(({ product, quantity }) => {
-        return ProductModel.updateOne(
-          { _id: product },
-          { $inc: { countInStock: -quantity, unitsSold: +quantity } },
-          { session }
-        );
-      })
-    );
+    for (const { product, quantity } of products) {
+      const productInStock = await ProductModel.findById(product);
+
+      if (productInStock && productInStock.countInStock < quantity) {
+        throw new Error(`Insufficient stock for product ${product}`);
+      }
+
+      await ProductModel.updateOne(
+        { _id: product },
+        { $inc: { countInStock: -quantity, unitsSold: +quantity } },
+        { session }
+      );
+    }
 
     const newOrder: Order = new OrderModel({
       orderNo,
