@@ -1,27 +1,31 @@
 import UserModel, { User, Address } from '../models/User';
-import { Types } from 'mongoose';
 import { ROLES_LIST } from '../config/roles_list';
 
+// Find User by Username
 export const findUserByUsername = async (
   username: string
 ): Promise<User | null> => {
   return await UserModel.findOne({ username }).select('-refreshToken').exec();
 };
 
+// Find User by ID
 export const findUserById = async (id: string) => {
   return await UserModel.findById(id).select('-password -refreshToken').exec();
 };
 
+// Find User by Email
 export const findUserByEmail = async (email: string) => {
   return await UserModel.findOne({ email }).select('-refreshToken').exec();
 };
 
+// Find User by Refresh Token
 export const findUserByRefreshToken = async (
   refreshToken: string
 ): Promise<User | null> => {
   return await UserModel.findOne({ refreshToken }).exec();
 };
 
+// Create New User
 export const createUser = async (
   username: string,
   email: string,
@@ -34,6 +38,7 @@ export const createUser = async (
   });
 };
 
+// Update User Refresh Token
 export const updateUserRefreshToken = async (
   user: User,
   refreshToken: string
@@ -42,11 +47,13 @@ export const updateUserRefreshToken = async (
   return await user.save();
 };
 
+// Clear User Refresh Token
 export const clearUserRefreshToken = async (user: User): Promise<User> => {
   user.refreshToken = '';
   return await user.save();
 };
 
+// Update User Contact Info (Address and Phone)
 export const updateUserContactInfo = async (
   userId: string,
   address?: Address,
@@ -65,10 +72,22 @@ export const updateUserContactInfo = async (
   return await user.save();
 };
 
+// Update User Email Separately
+export const updateUserEmail = async (userId: string, email: string): Promise<User> => {
+  const user = await UserModel.findById(userId);
+  if (!user) {
+    throw new Error('User not found');
+  }
+  user.email = email;
+  return await user.save();
+};
+
+// Update User Status
 export const updateUserStatusService = async (id: string, isActive: boolean) => {
   return await UserModel.findByIdAndUpdate(id, { isActive }, { new: true });
 };
 
+// Toggle User Status
 export const toggleUserStatusService = async (id: string) => {
   const user = await UserModel.findById(id).select('-password -refreshToken');
   if (!user) return null;
@@ -78,6 +97,7 @@ export const toggleUserStatusService = async (id: string) => {
   return user;
 };
 
+// Toggle Editor Role
 export const toggleEditorRoleService = async (id: string) => {
   const user = await UserModel.findById(id).select('-password -refreshToken');
   if (!user) return null;
@@ -94,6 +114,7 @@ export const toggleEditorRoleService = async (id: string) => {
   return user;
 };
 
+// Find All Users
 export const findAllUsers = async (): Promise<User[]> => {
   return await UserModel.find().select("-password -refreshToken").exec();
 };

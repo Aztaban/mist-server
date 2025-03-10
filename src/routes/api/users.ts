@@ -9,7 +9,9 @@ const router: Router = express.Router();
 router.route('/').get(verifyRoles(ROLES_LIST.Admin),userController.getAllUsers);
 router.route('/user').get(userController.getUser);
 router.route('/user/orders').get(verifyRoles(ROLES_LIST.User),getOrdersForUser);
-router.route('/user/address').patch(verifyRoles(ROLES_LIST.User),userController.updateUserAddressAndPhone);
+router.route('/user/address').patch(verifyRoles(ROLES_LIST.User),userController.updateAddress);
+router.route('/user/phone').patch(verifyRoles(ROLES_LIST.User),userController.updatePhone);
+router.route('/user/email').patch(verifyRoles(ROLES_LIST.User),userController.updateEmail);
 
 router.route('/:id').get(verifyRoles(ROLES_LIST.Admin), userController.getUserById);
 
