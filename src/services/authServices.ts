@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import jwt, { Secret } from 'jsonwebtoken';
+import UserModel, { User } from '../models/User';
 
 export interface AccessTokenPayload {
   UserInfo: {
@@ -22,4 +23,13 @@ export const generateAccessToken = (payload: AccessTokenPayload): string => {
 
 export const generateRefreshToken = (username: string): string => {
   return jwt.sign({ username }, process.env.REFRESH_TOKEN_SECRET as Secret, { expiresIn: '24h' });
+};
+
+export const updateUserPassword = async (userId: string, newPassword: string): Promise<User> => {
+  const user = await UserModel.findById(userId);
+  if (!user) {
+    throw new Error('User not found');
+  }
+  user.password = await hashPassword(newPassword);
+  return await user.save();
 };
