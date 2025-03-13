@@ -39,7 +39,7 @@ export const updatePassword = async (
 
     const match = await validatePassword(password, user.password);
     if (!match) {
-      res.status(401).json({ message: 'Incorrect current password' });
+      res.status(400).json({ message: 'Incorrect current password' });
       return;
     }
     await updateUserPassword(userId, newPassword);
