@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import {
-  updateUserContactInfo,
+  updateUserAddress,
+  updateUserPhoneNumber,
   updateUserEmail,
   findUserByEmail
 } from '../../services/userServices';
@@ -31,7 +32,7 @@ export const updateAddress = async (
       return;
     }
 
-    await updateUserContactInfo(userId, address);
+    await updateUserAddress(userId, address);
     res.status(200).json({ message: 'Address updated successfully' });
   } catch (error) {
     console.error('Error updating user address:', error);
@@ -50,6 +51,7 @@ export const updatePhone = async (
       return;
     }
     const { phoneNumber } = req.body;
+    console.log("phonenumber", phoneNumber)
     if (!phoneNumber) {
       res.status(400).json({ message: 'No phone number provided to update' });
       return;
@@ -59,7 +61,7 @@ export const updatePhone = async (
       return;
     }
 
-    await updateUserContactInfo(userId, phoneNumber);
+    await updateUserPhoneNumber(userId, phoneNumber);
     res.status(200).json({ message: 'Phone number updated successfully' });
   } catch (error) {
     console.error('Error updating user phone number:', error);

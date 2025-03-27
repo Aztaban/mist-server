@@ -53,27 +53,37 @@ export const clearUserRefreshToken = async (user: User): Promise<User> => {
   return await user.save();
 };
 
-// Update User Contact Info (Address and Phone)
-export const updateUserContactInfo = async (
+// Update User Address
+export const updateUserAddress = async (
   userId: string,
-  address?: Address,
-  phoneNumber?: string
+  address: Address
 ): Promise<User> => {
   const user = await UserModel.findById(userId);
   if (!user) {
     throw new Error('User not found');
   }
-  if (address) {
-    user.address = address;
+  user.address = address;
+  return await user.save();
+};
+
+// Update User Phone number
+export const updateUserPhoneNumber = async (
+  userId: string,
+  phoneNumber: string
+): Promise<User> => {
+  const user = await UserModel.findById(userId);
+  if (!user) {
+    throw new Error('User not found');
   }
-  if (phoneNumber) {
-    user.phoneNumber = phoneNumber;
-  }
+  user.phoneNumber = phoneNumber;
   return await user.save();
 };
 
 // Update User Email Separately
-export const updateUserEmail = async (userId: string, email: string): Promise<User> => {
+export const updateUserEmail = async (
+  userId: string,
+  email: string
+): Promise<User> => {
   const user = await UserModel.findById(userId);
   if (!user) {
     throw new Error('User not found');
@@ -83,7 +93,10 @@ export const updateUserEmail = async (userId: string, email: string): Promise<Us
 };
 
 // Update User Status
-export const updateUserStatusService = async (id: string, isActive: boolean) => {
+export const updateUserStatusService = async (
+  id: string,
+  isActive: boolean
+) => {
   return await UserModel.findByIdAndUpdate(id, { isActive }, { new: true });
 };
 
@@ -105,7 +118,7 @@ export const toggleEditorRoleService = async (id: string) => {
   const editorRole = ROLES_LIST.Editor;
 
   if (user.roles.includes(editorRole)) {
-    user.roles = user.roles.filter(role => role !== editorRole);
+    user.roles = user.roles.filter((role) => role !== editorRole);
   } else {
     user.roles.push(editorRole);
   }
@@ -116,5 +129,5 @@ export const toggleEditorRoleService = async (id: string) => {
 
 // Find All Users
 export const findAllUsers = async (): Promise<User[]> => {
-  return await UserModel.find().select("-password -refreshToken").exec();
+  return await UserModel.find().select('-password -refreshToken').exec();
 };

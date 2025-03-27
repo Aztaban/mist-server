@@ -20,5 +20,4 @@ router.route('/:id').get(verifyRoles(ROLES_LIST.Admin), userController.getUserBy
 router.route('/:id/toggle-status').patch(verifyRoles(ROLES_LIST.Admin), userController.toggleUserStatus);
 router.route('/:id/toggle-editor').patch(verifyRoles(ROLES_LIST.Admin), userController.toggleEditorRole);
 
- 
 export = router;
