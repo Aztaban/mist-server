@@ -62,7 +62,16 @@ export const updateUserAddress = async (
   if (!user) {
     throw new Error('User not found');
   }
-  user.address = address;
+
+  const isAddressEmpty = (addr: Partial<Address>) =>
+    Object.values(addr || {}).every((v) => v === '');
+
+  if (isAddressEmpty(address)) {
+    user.address = undefined;
+  } else {
+    user.address = address;
+  }
+
   return await user.save();
 };
 
@@ -75,6 +84,7 @@ export const updateUserPhoneNumber = async (
   if (!user) {
     throw new Error('User not found');
   }
+
   user.phoneNumber = phoneNumber;
   return await user.save();
 };

@@ -7,6 +7,7 @@ import {
 } from '../../services/userServices';
 import { AuthRequest } from '../../middleware/verifyJWT';
 import { validateAddress } from '../../utils/validateAddress';
+import { Address } from '../../models/User';
 
 // Update User Address
 export const updateAddress = async (
@@ -21,14 +22,20 @@ export const updateAddress = async (
     }
     const { address } = req.body;
 
-    const isValidAddress = validateAddress(address);
-    if (address && !isValidAddress.valid) {
-      res.status(400).json({ message: isValidAddress.message });
-      return;
+    console.log(address);
+    const isAddressEmpty = (addr: Partial<Address>) =>
+      Object.values(addr || {}).every((v) => v === '');
+
+    if (address && !isAddressEmpty(address)) {
+      const isValidAddress = validateAddress(address);
+      if (!isValidAddress.valid) {
+        res.status(400).json({ message: isValidAddress.message });
+        return;
+      }
     }
 
     await updateUserAddress(userId, address);
-    res.status(200).json({ message: 'Address updated successfully' });
+    res.status(200).json({ message: isAddressEmpty(address) ? 'Address removed successfully' : 'Address updated successfully' });
   } catch (error) {
     console.error('Error updating user address:', error);
     res.status(500).json({ message: 'Internal Server Error' });
