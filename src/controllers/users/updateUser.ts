@@ -21,13 +21,8 @@ export const updateAddress = async (
     }
     const { address } = req.body;
 
-    if (!address) {
-      res.status(400).json({ message: 'No address provided to update' });
-      return;
-    }
-
     const isValidAddress = validateAddress(address);
-    if (!isValidAddress.valid) {
+    if (address && !isValidAddress.valid) {
       res.status(400).json({ message: isValidAddress.message });
       return;
     }
