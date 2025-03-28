@@ -51,17 +51,12 @@ export const updatePhone = async (
       return;
     }
     const { phoneNumber } = req.body;
-    console.log("phonenumber", phoneNumber)
-    if (!phoneNumber) {
-      res.status(400).json({ message: 'No phone number provided to update' });
-      return;
-    }
-    if (!/^\+?\d{10,15}$/.test(phoneNumber)) {
+    if (phoneNumber && !/^\+?\d{10,15}$/.test(phoneNumber)) {
       res.status(400).json({ message: 'Invalid phone number format' });
       return;
     }
 
-    await updateUserPhoneNumber(userId, phoneNumber);
+    await updateUserPhoneNumber(userId, phoneNumber || '');
     res.status(200).json({ message: 'Phone number updated successfully' });
   } catch (error) {
     console.error('Error updating user phone number:', error);
