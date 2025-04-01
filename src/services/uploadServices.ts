@@ -2,6 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import ProductModel from '../models/Product';
 
+const IMAGES_DIR = path.join(__dirname, '../../public/uploads/images');
+
 /**
  * Saves a file and returns the filename.
  * @param file - Uploaded file object.
@@ -33,7 +35,7 @@ export const updateProductImage = async (productId: string, file: Express.Multer
 
   // Delete old image if it exists
   if (product.image) {
-    const imagePath = path.join(__dirname, '../../../public/uploads/images', product.image);
+    const imagePath = path.join(IMAGES_DIR, product.image);
     if (fs.existsSync(imagePath)) {
       fs.unlink(imagePath, (err) => {
         if (err) console.error('Error deleting old image:', err);
