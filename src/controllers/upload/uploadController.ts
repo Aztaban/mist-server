@@ -1,6 +1,5 @@
 import { Response } from 'express';
 import { AuthRequest } from '../../middleware/verifyJWT';
-import ProductModel from '../../models/Product';
 import * as uploadService from '../../services/uploadServices';
 
 /**
@@ -30,10 +29,14 @@ export const handleImageUpload = async (req: AuthRequest, res: Response) => {
  */
 export const handleProductImageUpdate = async (req: AuthRequest, res: Response) => {
   try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
     const filename = await uploadService.updateProductImage(req.params.id, req.file!);
     res.status(200).json({ image: filename });
   } catch (error) {
     console.error('Error updating product image:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    const errorMessage = error instanceof Error ? error.message : 'Unexpected error';
+    res.status(500).json({ error: errorMessage });
   }
 };

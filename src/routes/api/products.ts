@@ -7,6 +7,7 @@ import {
   handleProductImageUpdate,
 } from '../../controllers/upload/uploadController';
 import verifyJWT from '../../middleware/verifyJWT';
+import { singleFileUpload } from '../../utils/upload';
 
 const router: Router = express.Router();
 
@@ -34,6 +35,7 @@ router
   .post(
     verifyJWT,
     verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor),
+    singleFileUpload,
     handleImageUpload
   );
 
@@ -42,6 +44,7 @@ router
   .put(
     verifyJWT,
     verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor),
+    singleFileUpload,
     handleProductImageUpdate
   );
 
