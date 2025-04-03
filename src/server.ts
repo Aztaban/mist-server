@@ -48,6 +48,7 @@ app.use('/', require('./routes/root'));
 app.use('/auth', require('./routes/auth'));
 app.use('/products', require('./routes/api/products'));
 app.use('/posts', require('./routes/api/posts'));
+app.use('/categories', require('./routes/api/categories'));
 
 // Middleware to verify JWT for the routes below
 app.use(verifyJWT);
@@ -72,15 +73,10 @@ app.use(errorHandler);
 
 mongoose.connection.once('open', () => {
   console.log('Connected to MongoDB');
-  app.listen(PORT, () =>
-    console.log(`Server is running at http://localhost:${PORT}`)
-  );
+  app.listen(PORT, () => console.log(`Server is running at http://localhost:${PORT}`));
 });
 
 mongoose.connection.on('error', (err) => {
   console.log(err);
-  logEvents(
-    `${err.no}: ${err.code}\t${err.syscall}\t{err.hostname}`,
-    'mongoErrLog.log'
-  );
+  logEvents(`${err.no}: ${err.code}\t${err.syscall}\t{err.hostname}`, 'mongoErrLog.log');
 });
