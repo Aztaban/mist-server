@@ -7,7 +7,7 @@ import { updatePassword } from '../../controllers/auth';
 
 const router: Router = express.Router();
 
-router.route('/').get(verifyRoles(ROLES_LIST.Admin),userController.getAllUsers);
+router.route('/').get(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor),userController.getAllUsers);
 router.route('/user').get(userController.getUser);
 router.route('/user/orders').get(verifyRoles(ROLES_LIST.User),getOrdersForUser);
 router.route('/user/address').patch(verifyRoles(ROLES_LIST.User),userController.updateAddress);
