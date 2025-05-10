@@ -1,14 +1,18 @@
 import ProductModel, { Product } from '../models/Product';
+import Category from '../models/Category';
 
 export const getAllProductsService = async (): Promise<Product[]> => {
-  return await ProductModel.find();
+  return await ProductModel.find().populate('category', 'name').exec();
 };
 
 export const getProductById = async (productId: string): Promise<Product | null> => {
-  return await ProductModel.findById(productId).exec();
+  return await ProductModel.findById(productId).populate('category', 'name').exec();
 };
 
 export const createProductService = async (productData: Product): Promise<Product> => {
+  const categoryExists = await Category.findById(productData.category).exec();
+  if (!categoryExists) throw new Error('Category does not exist');
+
   return await ProductModel.create(productData);
 };
 
@@ -23,7 +27,9 @@ export const updateProductById = async (productId: string, updatedData: Partial<
     updatedData.countInStock = newStockValue;
   }
 
-  return await ProductModel.findByIdAndUpdate(productId, updatedData, { new: true }).exec();
+  return await ProductModel.findByIdAndUpdate(productId, updatedData, { new: true })
+    .populate('category', 'name')
+    .exec();
 };
 
 export const deleteProductById = async (productId: string): Promise<Product | null> => {
