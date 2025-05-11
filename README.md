@@ -55,8 +55,6 @@ mist-server/
    cd your-repo-name
    ```
 
-````
-
 2. Install dependencies:
 
    ```bash
@@ -167,4 +165,3 @@ mist-server/
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
-````
