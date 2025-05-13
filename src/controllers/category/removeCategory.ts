@@ -12,5 +12,5 @@ export const removeCategory = async (req: Request, res: Response) => {
   }
 
   await categoryServices.deleteCategory(id);
-  res.sendStatus(200).json({ message: 'Category deleted succesfully' });
+  res.status(200).json({ message: 'Category deleted succesfully' });
 };
