@@ -23,17 +23,18 @@ const categorySchema: Schema<ICategory> = new Schema(
   }
 );
 
-categorySchema.virtual('id').get(function (this: Document) {
-  return this._id as ObjectId;
+categorySchema.virtual('id').get(function (this: ICategory) {
+  return (this._id as mongoose.Types.ObjectId).toString();
 });
 
 categorySchema.set('toJSON', {
   virtuals: true,
   versionKey: false,
-  transform: (_, ret) => {
-    delete ret._id;
+  transform: (_doc, ret) => {
+    delete ret._id; // keep only "id"
   },
 });
+categorySchema.set('toObject', { virtuals: true, versionKey: false });
 const Category: Model<ICategory> = mongoose.model<ICategory>('Category', categorySchema);
 
 export default Category;
