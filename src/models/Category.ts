@@ -12,6 +12,10 @@ const categorySchema: Schema<ICategory> = new Schema(
       type: String,
       required: true,
       unique: true,
+      trim: true,
+      lowercase: true,
+      minlength: 1,
+      maxlength: 64,
     },
   },
   {
