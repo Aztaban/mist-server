@@ -1,6 +1,6 @@
 {
   "name": "mist-server",
-  "version": "0.5.2",
+  "version": "0.9.2",
   "description": "A backend service for an eCommerce platform built with Express and TypeScript, supporting features such as user authentication, product management, orders, and payment processing.",
   "main": "src/index.ts",
   "scripts": {
