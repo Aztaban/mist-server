@@ -4,8 +4,8 @@
   "description": "A backend service for an eCommerce platform built with Express and TypeScript, supporting features such as user authentication, product management, orders, and payment processing.",
   "main": "src/index.ts",
   "scripts": {
-    "build": "npx tsc",
-    "start": "node public/server.js",
+    "build": "tsc",
+    "start": "node build/server.js",
     "dev": "ts-node-dev src/server.ts"
   },
   "keywords": [],
