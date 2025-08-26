@@ -10,57 +10,55 @@ import errorHandler from './middleware/errorHandler';
 import credentials from './middleware/credentials';
 import verifyJWT from './middleware/verifyJWT';
 import { logEvents, logger } from './middleware/logEvents';
-import verifyRoles from './middleware/verifyRoles';
 
 dotenv.config();
 
 const app: Express = express();
 const PORT: number = parseInt(process.env.PORT || '3500', 10);
 
+/** Trust the first proxy hop (Cloudflare Tunnel / Nginx, etc.) */
+const TRUST_PROXY = process.env.TRUST_PROXY ? Number(process.env.TRUST_PROXY) : 1;
+app.set('trust proxy', TRUST_PROXY);
+
 // Connect to mongo DB
 connectDB();
 
+// ── Global middleware (order matters) ───────────────────────────────────────────
 app.use(logger);
 
-// Handle options credentials check - before CORS!
-// and fetch cokies credentials requirement
+// Must run BEFORE cors(); decides if we allow credentialed requests
 app.use(credentials);
 
-// Cross Origin Resource Sharing
+// CORS (reads allowed origins from env; credentials enabled inside options)
 app.use(cors(corsOptions));
 
-// built-in middleware to handle urlencoded data
-// in other words, form data:
-// 'content-type: application/x-www-form-urlencoded'
+// Body parsers
 app.use(express.urlencoded({ extended: false }));
-
-// built-in middleware for json
 app.use(express.json());
 
-// middleware for cookies
+// Cookies (for httpOnly refresh token)
 app.use(cookieParser());
 
-// serve static files
+// Static assets (adjust path to where your built public files live)
 app.use('/', express.static(path.join(__dirname, '../public')));
 
-// routes
+// ── Public routes (no auth) ────────────────────────────────────────────────────
 app.use('/', require('./routes/root'));
 app.use('/auth', require('./routes/auth'));
 app.use('/products', require('./routes/api/products'));
 app.use('/posts', require('./routes/api/posts'));
 app.use('/categories', require('./routes/api/categories'));
 
-// Middleware to verify JWT for the routes below
+// ── Protected routes (JWT required) ────────────────────────────────────────────
 app.use(verifyJWT);
-
-// verified routes
 app.use('/users', require('./routes/api/users'));
 app.use('/orders', require('./routes/api/orders'));
 
-// default route
+// 404 fallback
 app.all('/*', (req: Request, res: Response) => {
   res.status(404);
   if (req.accepts('html')) {
+    // Ensure this file exists in the built output; copy it during build if needed
     res.sendFile(path.join(__dirname, 'views', '404.html'));
   } else if (req.accepts('json')) {
     res.json({ error: '404 Not Found' });
@@ -69,14 +67,16 @@ app.all('/*', (req: Request, res: Response) => {
   }
 });
 
+// Global error handler (keep LAST)
 app.use(errorHandler);
 
+// ── Startup / DB events ────────────────────────────────────────────────────────
 mongoose.connection.once('open', () => {
   console.log('Connected to MongoDB');
   app.listen(PORT, '0.0.0.0', () => console.log(`Server is running at http://localhost:${PORT}`));
 });
 
-mongoose.connection.on('error', (err) => {
-  console.log(err);
-  logEvents(`${err.no}: ${err.code}\t${err.syscall}\t{err.hostname}`, 'mongoErrLog.log');
+mongoose.connection.on('error', (err: any) => {
+  console.error(err);
+  logEvents(`${err.no}: ${err.code}\t${err.syscall}\t${err.hostname ?? ''}`, 'mongoErrLog.log');
 });
