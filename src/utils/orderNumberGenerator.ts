@@ -5,9 +5,7 @@ let orderSequence = 1;
 const getLastOrderSequence = async (): Promise<number> => {
   try {
     // Find the last order in the database
-    const lastOrder: Order | null = await OrderModel.findOne()
-      .sort({ _id: -1 })
-      .exec();
+    const lastOrder: Order | null = await OrderModel.findOne().sort({ _id: -1 }).exec();
 
     if (lastOrder) {
       // Extract sequence number from the last order
