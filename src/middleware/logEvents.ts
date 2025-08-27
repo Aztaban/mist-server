@@ -46,11 +46,18 @@ export const logEvents = async (message: string, logName: string): Promise<void>
  */
 export const logger = (req: Request, _res: Response, next: NextFunction): void => {
   const origin = (req.headers.origin as string | undefined) ?? '';
-  void logEvents(`${req.method}\t${origin}\t${req.url}`, 'reqLog.log');
 
-  // concise console line
-  // eslint-disable-next-line no-console
-  console.log(`${req.method} ${req.path}`);
+  const clientIp =
+    (req.headers['cf-connecting-ip'] as string) || // Cloudflare Tunnel
+    (req.headers['x-real-ip'] as string) || // some proxies
+    (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
+    req.ip || // needs trust proxy
+    req.socket.remoteAddress ||
+    '';
 
+  const ipClean = clientIp.replace(/^::ffff:/, ''); // strip IPv6 v4-mapped prefix
+
+  void logEvents(`${req.method}\t${origin}\t${req.url}\tip=${ipClean}`, 'reqLog.log');
+  console.log(`${req.method} ${req.path} ip=${ipClean}`);
   next();
 };
