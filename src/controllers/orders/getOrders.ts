@@ -1,100 +1,86 @@
-import e, { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { AuthRequest } from '../../middleware/verifyJWT';
 import { Order } from '../../models/Order';
-import {
-  getAllOrdersService,
-  getOrdersForUserService,
-  getOrderByIdService,
-} from '../../services/orderServices';
+import { getAllOrdersService, getOrdersForUserService, getOrderByIdService } from '../../services/orderServices';
+import mongoose from 'mongoose';
 
 /**
- * Retrieves all orders from the database.
+ * List all orders (unfiltered).
  *
- * @param {Request} req - The Express request object.
- * @param {Response} res - The Express response object.
+ * Route: GET /orders
  *
- * @returns {Object} 200 - JSON array of orders.
- * @returns {Object} 204 - No content if there are no orders.
- * @returns {Object} 500 - Internal server error.
+ * Responses:
+ * - 200 OK: JSON array of orders (may be empty [])
+ * - 5xx: delegated to global error handler
+ *
+ * @remarks
+ * Returning 200 with an empty array is friendlier for clients than 204.
  */
-export const getAllOrders = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const getAllOrders = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const orders: Order[] = await getAllOrdersService();
-    if (orders.length === 0) {
-      res.status(204).json({ message: 'No products found' });
-    } else {
-      res.status(200).json(orders);
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(200).json(orders); // [] if none
+  } catch (err) {
+    next(err);
   }
 };
 
 /**
- * Retrieves an order by its ID.
+ * Get a single order by id, enforcing access control.
  *
- * Ensures that the requester is authorized to access the order.
+ * Route: GET /orders/:id
+ * Auth: requires access token (verifyJWT sets `req.user`, `req.roles`)
  *
- * @param {AuthRequest} req - The Express request object containing the order ID.
- * @param {Response} res - The Express response object.
- *
- * @returns {Object} 200 - JSON object containing the order details.
- * @returns {Object} 400 - Bad request if the order ID is missing.
- * @returns {Object} 403 - Forbidden if the requester does not have permission to access the order.
- * @returns {Object} 404 - Not found if the order does not exist.
- * @returns {Object} 500 - Internal server error.
+ * Responses:
+ * - 200 OK: the order document
+ * - 400 Bad Request: missing id
+ * - 403 Forbidden: requester not allowed to view this order
+ * - 404 Not Found: order does not exist
+ * - 5xx: delegated to global error handler
  */
-export const getOrderById = async (
-  req: AuthRequest,
-  res: Response
-): Promise<void> => {
+export const getOrderById = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   const orderId = req.params.id;
-  if (!orderId) {
-    res.status(400).json({ message: `Order ID required` });
+  if (!orderId || !mongoose.isValidObjectId(orderId)) {
+    res.status(400).json({ message: 'Invalid order ID' });
     return;
   }
-
   if (!req.user || !req.roles) {
+    // unauthenticated/role-less request; verifyJWT should normally prevent this
     res.status(403).json({ message: 'User not found' });
     return;
   }
 
   try {
-    const order: Order | null = await getOrderByIdService(
-      orderId,
-      req.user,
-      req.roles
-    );
+    const order: Order | null = await getOrderByIdService(orderId, req.user, req.roles);
+
+    if (!order) {
+      res.status(404).json({ message: 'Order not found' });
+      return;
+    }
+
     res.status(200).json(order);
   } catch (error: any) {
-    if (error.message.includes('Forbidden')) {
+    // service throws a "Forbidden" error when the user isn't allowed
+    if (typeof error?.message === 'string' && error.message.includes('Forbidden')) {
       res.status(403).json({ message: error.message });
-    } else {
-      console.error(error);
-      res.status(500).json({ error: 'Internal Server Error' });
+      return;
     }
+    next(error);
   }
 };
 
 /**
- * Retrieves all orders for a given user.
+ * List orders for the authenticated user.
  *
- * @param {AuthRequest} req - The Express request object containing the authenticated user.
- * @param {Response} res - The Express response object.
+ * Route: GET /orders/my
+ * Auth: requires access token (verifyJWT sets `req.user`)
  *
- * @returns {Object} 200 - JSON array of orders for the authenticated user.
- * @returns {Object} 204 - No content if no orders are found for the user.
- * @returns {Object} 401 - Unauthorized if the user is not authenticated.
- * @returns {Object} 500 - Internal server error.
+ * Responses:
+ * - 200 OK: JSON array of orders for the user (may be empty [])
+ * - 401 Unauthorized: no authenticated user
+ * - 5xx: delegated to global error handler
  */
-export const getOrdersForUser = async (
-  req: AuthRequest,
-  res: Response
-): Promise<void> => {
+export const getOrdersForUser = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   if (!req.user) {
     res.status(401).json({ error: 'Unauthorized: User not authenticated.' });
     return;
@@ -102,13 +88,8 @@ export const getOrdersForUser = async (
 
   try {
     const userOrders: Order[] = await getOrdersForUserService(req.user);
-    if (userOrders.length === 0) {
-      res.status(204).json({ message: 'No orders found for this user' });
-    } else {
-      res.status(200).json(userOrders);
-    }
-  } catch (error) {
-    console.error('Error getting orders for user:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(200).json(userOrders);
+  } catch (err) {
+    next(err);
   }
 };

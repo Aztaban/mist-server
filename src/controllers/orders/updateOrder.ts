@@ -1,71 +1,79 @@
-import { Request, Response } from "express";
-import { updateOrderService, updateOrderPaidService } from "../../services/orderServices";
-import { Order } from "../../models/Order";
+import { Request, Response, NextFunction } from 'express';
+import mongoose from 'mongoose';
+import { updateOrderService, updateOrderPaidService } from '../../services/orderServices';
+import { Order } from '../../models/Order';
 
 /**
- * Handles updating an existing order.
+ * Partially update an order by id.
  *
- * @param {Request} req - The Express request object containing order ID and update data.
- * @param {Response} res - The Express response object.
+ * Route: PATCH /orders/:id
  *
- * @returns {Object} 200 - The updated order object.
- * @returns {Object} 400 - Bad request if the order ID is missing.
- * @returns {Object} 404 - Not found if no matching order exists.
- * @returns {Object} 500 - Internal server error.
+ * Request:
+ * - Params: { id: string }
+ * - Body:   Partial<Order> (fields to update)
+ *
+ * Responses:
+ * - 200 OK:   updated order document
+ * - 400 Bad Request: missing/invalid id
+ * - 404 Not Found:    order not found
+ * - 5xx: delegated to global error handler
  */
-
-export const updateOrder = async (req: Request, res: Response): Promise<void> => {
-  const orderId = req.params.id;
-  if (!orderId) {
-    res.status(400).json({ message: `Order ID required` });
-    return;
-  }
+export const updateOrder = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const updates = req.body as Partial<Order>;
-    const updatedOrder = await updateOrderService(orderId, updates);
-
-    if (!updatedOrder) {
-      res.status(404).json({ message: `No Order found with ID ${orderId}` });
-      return;
+    const { id } = req.params;
+    if (!id || !mongoose.isValidObjectId(id)) {
+      const err = new Error('Invalid order id');
+      (err as any).status = 400;
+      throw err;
     }
 
-    res.status(200).json(updatedOrder);
+    const updates = req.body as Partial<Order>;
+    const updated = await updateOrderService(id, updates);
+
+    if (!updated) {
+      const err = new Error(`No order found with id ${id}`);
+      (err as any).status = 404;
+      throw err;
+    }
+
+    res.status(200).json(updated);
   } catch (error) {
-    console.error('Error updating order:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    next(error);
   }
 };
 
 /**
- * Marks an order as paid.
+ * Mark an order as paid and move it to PROCESSING.
  *
- * @param {Request} req - The Express request object containing the order ID.
- * @param {Response} res - The Express response object.
+ * Route: PATCH /orders/:id/paid
  *
- * @returns {Object} 200 - The updated order object.
- * @returns {Object} 400 - Bad request if the order ID is missing.
- * @returns {Object} 404 - Not found if no matching order exists.
- * @returns {Object} 500 - Internal server error.
+ * Request:
+ * - Params: { id: string }
+ *
+ * Responses:
+ * - 200 OK:   updated order document
+ * - 400 Bad Request: missing/invalid id
+ * - 404 Not Found:    order not found
+ * - 5xx: delegated to global error handler
  */
-export const updateOrderPaid = async (req: Request, res: Response): Promise<void> => {
-  const orderId = req.params.id;
-
-  if (!orderId) {
-    res.status(400).json({ message: 'Order ID required' });
-    return;
-  }
-
+export const updateOrderPaid = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const updatedOrder = await updateOrderPaidService(orderId);
-
-    if (!updatedOrder) {
-      res.status(404).json({ message: `No Order found with ID ${orderId}` });
-      return;
+    const { id } = req.params;
+    if (!id || !mongoose.isValidObjectId(id)) {
+      const err = new Error('Invalid order id');
+      (err as any).status = 400;
+      throw err;
     }
 
-    res.status(200).json(updatedOrder);
+    const updated = await updateOrderPaidService(id);
+    if (!updated) {
+      const err = new Error(`No order found with id ${id}`);
+      (err as any).status = 404;
+      throw err;
+    }
+
+    res.status(200).json(updated);
   } catch (error) {
-    console.error('Error updating order payment status:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    next(error);
   }
 };

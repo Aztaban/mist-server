@@ -1,4 +1,4 @@
-import { Response, Request } from 'express';
+import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../../middleware/verifyJWT';
 import { createOrderService } from '../../services/orderServices';
 import { OrderItem } from '../../models/Order';
@@ -6,58 +6,62 @@ import { Address } from '../../models/User';
 import { ShippingMethod } from '../../config/shippingMethod';
 
 /**
- * Handles the creation of a new order.
- * 
- * Validates the request, processes the order, and updates product stock.
+ * Create a new order for the authenticated user.
  *
- * @param {AuthRequest} req - The Express request object containing the authenticated user and order details.
- * @param {Response} res - The Express response object.
+ * Route: POST /orders
+ * Auth: requires a valid access token (sets `req.user` via verifyJWT)
  *
- * @returns {Object} 201 - Successfully created order with `{ orderId: string }`.
- * @returns {Object} 400 - Bad request if required fields (`products`, `shippingAddress`, or `shippingMethod`) are missing.
- * @returns {Object} 500 - Internal server error with an error message.
+ * Request body:
+ * - `products`        OrderItem[] (non-empty; each item has `product` id + `quantity`)
+ * - `shippingAddress` Address
+ * - `shippingMethod`  ShippingMethod
+ * - `phoneNumber?`    string (optional)
+ *
+ * Behavior:
+ * - Validates presence/shape of required fields.
+ * - Throws 401 if no authenticated user is present on the request.
+ * - Calls `createOrderService`, which performs transactional stock checks/updates.
+ *
+ * Responses:
+ * - 201 Created: returns the new order id (currently the raw `_id`)
+ * - 400 Bad Request: missing/invalid body fields
+ * - 401 Unauthorized: user not authenticated
+ * - 5xx: delegated to the global error handler
+ *
+ * Notes:
+ * - We throw `Error` objects with a `status` property; the global error handler
+ *   uses `err.status` to choose the HTTP status code.
  */
-export const createNewOrder = async (
-  req: AuthRequest,
-  res: Response
-): Promise<void> => {
+export const createNewOrder = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const {products, shippingAddress, shippingMethod, phoneNumber } = req.body as {
+    // Narrow `req.body` to the expected shape
+    const { products, shippingAddress, shippingMethod, phoneNumber } = req.body as {
       products: OrderItem[];
       shippingAddress: Address;
       shippingMethod: ShippingMethod;
       phoneNumber?: string;
     };
 
-    const user = req.user;
-
-    if (!user) {
-      res.status(401).json({ error: 'Unauthorized: User not authenticated.' });
-      return;
+    // Ensure the user is authenticated
+    if (!req.user) {
+      const err = new Error('Unauthorized: User not authenticated.');
+      (err as any).status = 401;
+      throw err;
     }
 
-    if (
-      !products ||
-      products.length === 0 ||
-      !shippingAddress ||
-      !shippingMethod
-    ) {
-      res
-        .status(400)
-        .json({ error: 'Products and shipping address are required' });
-      return;
+    // Basic payload validation
+    if (!Array.isArray(products) || products.length === 0 || !shippingAddress || !shippingMethod) {
+      const err = new Error('Products and shipping address are required');
+      (err as any).status = 400;
+      throw err;
     }
 
-    const order = await createOrderService(
-      user,
-      products,
-      shippingAddress,
-      shippingMethod,
-      phoneNumber
-    );
+    // Create order (service handles transactional stock updates)
+    const order = await createOrderService(req.user, products, shippingAddress, shippingMethod, phoneNumber);
+
     res.status(201).json(order._id);
-  } catch (error: any) {
-    console.error('Error in createOrderController:', error);
-    res.status(500).json({ message: error.message || 'Internal Server Error' });
+  } catch (error) {
+    // Delegate formatting to the global error handler
+    next(error);
   }
 };

@@ -10,40 +10,38 @@ import { Types } from 'mongoose';
 import { ROLES_LIST } from '../config/roles_list';
 
 /**
- * Retrieves all orders from the database.
- *
- * @returns {Promise<Order[]>} A promise that resolves to an array of all orders.
+ * Retrieve all orders.
+ * @returns Promise resolving to every order (unfiltered).
+ * @remarks Consider adding pagination/filters for production, and limiting to admins.
  */
 export const getAllOrdersService = async (): Promise<Order[]> => {
-  const orders: Order[] = await OrderModel.find().exec();
+  const orders = await OrderModel.find().exec();
   return orders;
 };
 
 /**
- * Retrieves an order by its ID and ensures access control based on user roles.
+ * Retrieve a single order by id with access control.
  *
- * @param {string} orderId - The ID of the order to retrieve.
- * @param {Types.ObjectId} requesterId - The ID of the user making the request.
- * @param {number[]} requesterRoles - An array of roles associated with the requester.
- *
- * @returns {Promise<Order | null>} A promise that resolves to the order if found and accessible by the requester, or null if not found.
- *
- * @throws {Error} Throws an error if the requester does not have permission to access the order.
+ * @param orderId - Target order id
+ * @param requesterId - Requesting user's id (string form of ObjectId)
+ * @param requesterRoles - Role codes for the requester
+ * @returns The order if found and authorized, otherwise `null` if not found
+ * @throws Error if the requester is not authorized to access the order
  */
 export const getOrderByIdService = async (
   orderId: string,
   requesterId: string,
   requesterRoles: number[]
 ): Promise<Order | null> => {
-  const order: Order | null = await OrderModel.findById(orderId).exec();
+  const order = await OrderModel.findById(orderId).exec();
   if (!order) return null;
 
-  const isAdminOrEditor =
-    requesterRoles.includes(ROLES_LIST.Admin) ||
-    requesterRoles.includes(ROLES_LIST.Editor);
+  const isAdminOrEditor = requesterRoles.includes(ROLES_LIST.Admin) || requesterRoles.includes(ROLES_LIST.Editor);
 
-  // If not admin/editor, ensure the order belongs to the requester.
-  if (!isAdminOrEditor && order.user.id.toString() !== requesterId.toString()) {
+  // If not admin/editor, ensure the order belongs to the requester
+  const belongsToRequester = (order.user as unknown as Types.ObjectId).toString() === requesterId.toString();
+
+  if (!isAdminOrEditor && !belongsToRequester) {
     throw new Error('Forbidden: You do not have access to this order.');
   }
 
@@ -51,34 +49,31 @@ export const getOrderByIdService = async (
 };
 
 /**
- * Retrieves all orders for a specific user.
- *
- * @param {Types.ObjectId} userId - The ID of the user whose orders should be retrieved.
- *
- * @returns {Promise<Order[]>} A promise that resolves to an array of orders belonging to the given user.
+ * Retrieve all orders for a given user.
+ * @param userId - Owner's user id
+ * @returns Array of that user’s orders
  */
-export const getOrdersForUserService = async (
-  userId: string
-): Promise<Order[]> => {
-  const userOrders: Order[] = await OrderModel.find({ user: userId }).exec();
+export const getOrdersForUserService = async (userId: string): Promise<Order[]> => {
+  const userOrders = await OrderModel.find({ user: userId }).exec();
   return userOrders;
 };
 
 /**
- * Creates a new order and updates the stock for the ordered products.
+ * Create a new order and update stock atomically (transaction).
  *
- * @param {string} user - The ID of the user placing the order.
- * @param {OrderItem[]} products - An array of order items, each containing product details and quantity.
- * @param {ShippingAddress} shippingAddress - The shipping address for the order.
- * @param {ShippingMethod} shippingMethod - The method of shipping chosen for the order.
- * @param {string} [phoneNumber] - Optional phone number for the order.
+ * @param user - User id placing the order
+ * @param products - Line items (product id + quantity)
+ * @param shippingAddress - Destination address
+ * @param shippingMethod - Chosen shipping method
+ * @param phoneNumber - Optional contact phone
+ * @returns The newly created order
+ * @throws Error if a product is missing/understocked, or if the transaction fails
  *
- * @returns {Promise<Order>} A promise that resolves to the created order.
- *
- * @throws {Error} Throws an error if order creation or stock update fails.
+ * @remarks
+ * Requires MongoDB transactions (replica set). Ensure your Mongo is running as a replica set.
  */
 export const createOrderService = async (
-  user: String,
+  user: string,
   products: OrderItem[],
   shippingAddress: Address,
   shippingMethod: ShippingMethod,
@@ -93,24 +88,32 @@ export const createOrderService = async (
     const shippingPrice = calculateShippingPrice(shippingMethod);
     const totalPrice = itemsPrice + shippingPrice;
 
+    // Validate stock and existence within the transaction/session
     for (const { product, quantity } of products) {
-      const productInStock = await ProductModel.findById(product);
-
-      if (productInStock && productInStock.countInStock < quantity) {
+      const productDoc = await ProductModel.findById(product).session(session);
+      if (!productDoc) {
+        throw new Error(`Product not found: ${product}`);
+      }
+      if (productDoc.countInStock < quantity) {
         throw new Error(`Insufficient stock for product ${product}`);
       }
 
-      await ProductModel.updateOne(
+      // Decrement stock / increment unitsSold
+      const res = await ProductModel.updateOne(
         { _id: product },
         { $inc: { countInStock: -quantity, unitsSold: +quantity } },
         { session }
       );
+      // Optional: ensure an actual doc was modified
+      if (res.modifiedCount !== 1) {
+        throw new Error(`Failed to update stock for product ${product}`);
+      }
     }
 
-    const newOrder: Order = new OrderModel({
+    const newOrder = new OrderModel({
       orderNo,
       user,
-      products: products,
+      products,
       shippingAddress,
       phoneNumber,
       status: OrderStatus.PENDING,
@@ -123,70 +126,45 @@ export const createOrderService = async (
 
     await newOrder.save({ session });
     await session.commitTransaction();
-    await session.endSession();
+    session.endSession();
     return newOrder;
   } catch (error) {
     await session.abortTransaction();
-    await session.endSession();
+    session.endSession();
     if (error instanceof Error) {
-      throw new Error(
-        `Failed to create order and update stock: ${error.message}`
-      );
-    } else {
-      throw new Error(
-        'Failed to create order and update stock due to an unknown error.'
-      );
+      throw new Error(`Failed to create order and update stock: ${error.message}`);
     }
+    throw new Error('Failed to create order and update stock due to an unknown error.');
   }
 };
 
 /**
- * Deletes an order by its ID.
- *
- * @param {string} orderId - The ID of the order to delete.
- *
- * @returns {Promise<boolean>} A promise that resolves to `true` if the order was successfully deleted, `false` otherwise.
+ * Delete an order by id.
+ * @param orderId - Target order id
+ * @returns `true` if deleted, `false` if not found
  */
 export const deleteOrderService = async (orderId: string): Promise<boolean> => {
-  const deletedOrder: Order | null = await OrderModel.findByIdAndDelete(
-    orderId
-  ).exec();
+  const deletedOrder = await OrderModel.findByIdAndDelete(orderId).exec();
   return !!deletedOrder;
 };
 
 /**
- * Updates an order by its ID with the provided fields.
- *
- * @param {string} orderId - The ID of the order to update.
- * @param {Partial<Order>} updates - An object containing the fields to update.
- *
- * @returns {Promise<Order | null>} A promise that resolves to the updated order or `null` if not found.
- *
- * @throws {Error} Throws an error if the update operation fails.
+ * Partially update an order document.
+ * @param orderId - Target order id
+ * @param updates - Fields to set on the order
+ * @returns Updated order, or `null` if not found
+ * @throws Error if the update fails
  */
-export const updateOrderService = async (
-  orderId: string,
-  updates: Partial<Order>
-): Promise<Order | null> => {
-  return await OrderModel.findByIdAndUpdate(
-    orderId,
-    { $set: updates },
-    { new: true }
-  ).exec();
+export const updateOrderService = async (orderId: string, updates: Partial<Order>): Promise<Order | null> => {
+  return await OrderModel.findByIdAndUpdate(orderId, { $set: updates }, { new: true }).exec();
 };
 
 /**
- * Marks an order as paid and updates its status.
- *
- * @param {string} orderId - The ID of the order to update.
- *
- * @returns {Promise<Order | null>} A promise that resolves to the updated order, or `null` if the order is not found.
- *
- * @throws {Error} Throws an error if the update operation fails.
+ * Mark an order as paid and move it to PROCESSING.
+ * @param orderId - Target order id
+ * @returns Updated order, or `null` if not found
  */
-export const updateOrderPaidService = async (
-  orderId: string
-): Promise<Order | null> => {
+export const updateOrderPaidService = async (orderId: string): Promise<Order | null> => {
   return await OrderModel.findByIdAndUpdate(
     orderId,
     {

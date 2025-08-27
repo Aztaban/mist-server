@@ -1,41 +1,37 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
+import mongoose from 'mongoose';
 import { deleteOrderService } from '../../services/orderServices';
 
 /**
- * Deletes an order by its ID.
- * 
- * Ensures that the order exists before attempting deletion.
+ * Delete an order by id.
  *
- * @param {Request} req - The Express request object containing the order ID in `req.params.id`.
- * @param {Response} res - The Express response object used to send status and response messages.
+ * Route: DELETE /orders/:id
  *
- * @returns {Object} 200 - Order successfully deleted.
- * @returns {Object} 400 - Bad request if the order ID is missing.
- * @returns {Object} 404 - Not found if no order exists with the provided ID.
- * @returns {Object} 500 - Internal server error with an error message.
+ * Responses:
+ * - 204 No Content: deleted successfully
+ * - 400 Bad Request: missing/invalid id
+ * - 404 Not Found: no order with that id
+ * - 5xx: delegated to global error handler
  */
-export const deleteOrder = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  const orderId = req.params.id;
-
-  if (!orderId) {
-    res.status(400).json({ message: 'Order ID required' });
-    return;
-  }
-
+export const deleteOrder = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const isDeleted: boolean = await deleteOrderService(orderId);
+    const { id } = req.params;
 
-    if (!isDeleted) {
-      res.status(404).json({ message: `No Order found with ID ${orderId}` });
-      return;
+    if (!id || !mongoose.isValidObjectId(id)) {
+      const err = new Error('Invalid order id');
+      (err as any).status = 400;
+      throw err;
     }
 
-    res.status(200).json({ message: 'Order deleted successfully' });
+    const deleted = await deleteOrderService(id);
+    if (!deleted) {
+      const err = new Error(`No order found with id ${id}`);
+      (err as any).status = 404;
+      throw err;
+    }
+
+    res.status(204).send();
   } catch (error) {
-    console.error('Error deleting order:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    next(error);
   }
 };
