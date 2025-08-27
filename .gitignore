@@ -3,3 +3,5 @@ node_modules
 src/logs
 .env
 build
+Dockerfile
+docker-compose.yml
