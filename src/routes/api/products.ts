@@ -17,7 +17,7 @@ router
   .route('/:id')
   .get(productsController.getProduct)
   .patch(verifyJWT, verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor), productsController.updateProduct)
-  .delete(verifyRoles(ROLES_LIST.Admin), productsController.deleteProduct);
+  .delete(verifyJWT, verifyRoles(ROLES_LIST.Admin), productsController.deleteProduct);
 
 router
   .route('/imageUpload')

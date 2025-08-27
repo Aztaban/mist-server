@@ -1,42 +1,63 @@
+import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import Category from '../../models/Category';
-import { Request, Response } from 'express';
 import { updateProductById } from '../../services/productService';
 
-export const updateProduct = async (req: Request, res: Response): Promise<void> => {
+/**
+ * Update a product by id.
+ *
+ * Route: PATCH /products/:id
+ *
+ * - Validates `:id`.
+ * - If `category` is present in body, validates its ObjectId and existence.
+ * - Delegates stock-delta rules to the service (maps "Stock cannot be negative" → 400).
+ *
+ * Responses:
+ * - 200 OK:   `{ message, updatedProduct }`
+ * - 400 Bad Request: invalid product/category id, non-existent category, or negative resulting stock
+ * - 404 Not Found:    product not found
+ * - 5xx: delegated to global error handler
+ */
+export const updateProduct = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const productId = req.params.id;
+    const { id: productId } = req.params;
+
     if (!productId || !mongoose.isValidObjectId(productId)) {
-      res.status(400).json({ message: 'Invalid product id' });
-      return;
+      const err = new Error('Invalid product id');
+      (err as any).status = 400;
+      throw err;
     }
 
-    const updatedData = req.body;
+    const updatedData = req.body as any;
+
+    // If category is being changed, validate shape + existence
     if (updatedData?.category) {
       if (!mongoose.isValidObjectId(updatedData.category)) {
-        res.status(400).json({ message: 'Invalid category id' });
-        return;
+        const err = new Error('Invalid category id');
+        (err as any).status = 400;
+        throw err;
       }
-      const cat = await Category.findById(updatedData.category).lean().exec();
-      if (!cat) {
-        res.status(400).json({ message: 'Category does not exist' });
-        return;
+      const catExists = await Category.exists({ _id: updatedData.category });
+      if (!catExists) {
+        const err = new Error('Category does not exist');
+        (err as any).status = 400;
+        throw err;
       }
     }
 
     const updatedProduct = await updateProductById(productId, updatedData);
     if (!updatedProduct) {
-      res.status(404).json({ message: 'Product not found or failed to update' });
-      return;
+      const err = new Error('Product not found or failed to update');
+      (err as any).status = 404;
+      throw err;
     }
 
     res.json({ message: 'Product updated successfully', updatedProduct });
   } catch (error: any) {
+    // Map known business rule from the service to 400
     if (error?.message === 'Stock cannot be negative') {
-      res.status(400).json({ message: error.message });
-      return;
+      (error as any).status = 400;
     }
-    console.error('Error updating product:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    next(error);
   }
 };
