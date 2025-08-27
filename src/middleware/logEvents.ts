@@ -58,6 +58,6 @@ export const logger = (req: Request, _res: Response, next: NextFunction): void =
   const ipClean = clientIp.replace(/^::ffff:/, ''); // strip IPv6 v4-mapped prefix
 
   void logEvents(`${req.method}\t${origin}\t${req.url}\tip=${ipClean}`, 'reqLog.log');
-  console.log(`${req.method} ${req.path} ip=${ipClean}`);
+  //console.log(`${req.method} ${req.path} ip=${ipClean}`);
   next();
 };
