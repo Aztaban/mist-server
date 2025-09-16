@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import Category from '../../models/Category';
 import { createProductService } from '../../services/productService';
+import { buildImageUrl } from '../../utils/urlBuilder';
 
 /**
  * Create a new product.
@@ -64,7 +65,10 @@ export const createNewProduct = async (req: Request, res: Response, next: NextFu
     }
 
     const createdProduct = await createProductService(newProduct as any);
-    res.status(201).json(createdProduct);
+    res.status(201).json({
+      ...createdProduct.toJSON(),
+      imageUrl: createdProduct.image ? buildImageUrl(req, createdProduct.image) : null,
+    });
   } catch (error) {
     next(error);
   }

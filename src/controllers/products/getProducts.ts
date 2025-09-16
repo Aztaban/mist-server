@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { getAllProductsService, getProductById } from '../../services/productService';
 import mongoose from 'mongoose';
+import { buildImageUrl } from '../../utils/urlBuilder';
 
 /**
  * List all products (with category name populated).
@@ -16,7 +17,13 @@ import mongoose from 'mongoose';
 export const getAllProducts = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const products = await getAllProductsService();
-    res.status(200).json(products);
+
+    const withUrls = products.map((p) => ({
+      ...p.toJSON(),
+      imageUrl: p.image ? buildImageUrl(req, p.image) : null,
+    }));
+
+    res.status(200).json(withUrls);
   } catch (error) {
     next(error);
   }
@@ -49,7 +56,10 @@ export const getProduct = async (req: Request, res: Response, next: NextFunction
       return;
     }
 
-    res.json(product);
+    res.json({
+      ...product.toJSON(),
+      imageUrl: product.image ? buildImageUrl(req, product.image) : null,
+    });
   } catch (error) {
     next(error);
   }

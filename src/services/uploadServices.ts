@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import ProductModel from '../models/Product';
 
-const IMAGES_DIR = path.join(__dirname, '../../public/uploads/images');
+const IMAGES_DIR = process.env.UPLOAD_DIR ?? path.join(__dirname, '../../public/uploads/images');
 
 /**
  * Persist an uploaded file and return its stored filename.

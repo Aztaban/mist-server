@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import Category from '../../models/Category';
 import { updateProductById } from '../../services/productService';
+import { buildImageUrl } from '../../utils/urlBuilder';
 
 /**
  * Update a product by id.
@@ -52,7 +53,13 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
       throw err;
     }
 
-    res.json({ message: 'Product updated successfully', updatedProduct });
+    res.json({
+      message: 'Product updated successfully',
+      updatedProduct: {
+        ...updatedProduct.toJSON(),
+        imageUrl: updatedProduct.image ? buildImageUrl(req, updatedProduct.image) : null,
+      },
+    });
   } catch (error: any) {
     // Map known business rule from the service to 400
     if (error?.message === 'Stock cannot be negative') {
