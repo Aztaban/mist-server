@@ -76,6 +76,7 @@ mist-server/
    STRIPE_API_SECRET=<your-stripe-api-secret>
    COOKIE_SECURE=<true|false>
    TRUST_PROXY=<true|false>
+   UPLOAD_DIR:=<your-upload-directory>
    ```
 
 3. Run in development mode:
