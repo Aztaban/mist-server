@@ -38,8 +38,12 @@ export const getOrderByIdService = async (
 
   const isAdminOrEditor = requesterRoles.includes(ROLES_LIST.Admin) || requesterRoles.includes(ROLES_LIST.Editor);
 
+  const userField = order.user as any;
+
+  const ownerId = userField instanceof Types.ObjectId ? userField.toString() : userField?._id?.toString(); // populated case
+
   // If not admin/editor, ensure the order belongs to the requester
-  const belongsToRequester = (order.user as unknown as Types.ObjectId).toString() === requesterId.toString();
+  const belongsToRequester = ownerId === requesterId.toString();
 
   if (!isAdminOrEditor && !belongsToRequester) {
     throw new Error('Forbidden: You do not have access to this order.');
